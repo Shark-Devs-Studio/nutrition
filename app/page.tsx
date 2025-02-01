@@ -1,12 +1,10 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { FaCarrot } from "react-icons/fa";
-import { InputMask } from "@react-input/mask";
 
-import Chart from "@/components/Chart";
 import Header from "@/components/Header";
 import Timer from "@/components/Timer";
+import TimerSettings from "@/components/TimerSettings";
+import FastingChart from "@/components/FastingChart";
 
 export default function Home() {
    return (
@@ -37,58 +35,9 @@ export default function Home() {
 
                <Timer />
 
-               <div className="flex items-center justify-center max-md:justify-around md:gap-14 px-4 py-5 mt-16">
-                  <div className="max-md:w-32">
-                     <p className="text-xl max-md:text-base font-medium mb-2 max-sm:mb-1.5">
-                        Начало | 26.08
-                     </p>
+               <TimerSettings />
 
-                     <InputMask
-                        className="w-32 rounded-xl py-3 px-3 text-xl max-sm:text-lg border-2 text-blue-300 border-blue-200 outline-green-300 focus:text-green-400 placeholder-blue-200 focus:placeholder-green-400"
-                        mask="__:__"
-                        placeholder="ЧЧ:ММ"
-                        replacement={{ _: /\d/ }}
-                        type="tel"
-                     />
-
-                     <p className="text-gray-500 text-lg max-sm:text-sm mt-1">
-                        Пн, <span className="text-black">17:45 - 18:15</span>
-                     </p>
-                  </div>
-
-                  <div className="max-md:w-32">
-                     <p className="text-xl max-md:text-base font-medium mb-2 max-sm:mb-1.5">
-                        Конец | 26.08
-                     </p>
-
-                     <InputMask
-                        className="w-32 rounded-xl py-3 px-3 text-xl max-sm:text-lg border-2 text-blue-300 border-blue-200 outline-green-300 focus:text-green-400 placeholder-blue-200 focus:placeholder-green-400"
-                        mask="__:__"
-                        placeholder="ЧЧ:ММ"
-                        replacement={{ _: /\d/ }}
-                        type="tel"
-                     />
-
-                     <p className="text-gray-500 text-lg max-sm:text-sm mt-1">
-                        Пн, <span className="text-black">17:45 - 18:15</span>
-                     </p>
-                  </div>
-               </div>
-
-               <div className="max-w-7xl w-full mx-auto px-4 py-5">
-                  <div className="flex items-center justify-between py-5 px-10 max-sm:p-4 rounded-xl text-white bg-blue-600">
-                     <p className="text-3xl max-md:text-2xl max-sm:text-base font-semibold uppercase">
-                        Завершить ГОЛОДАНИЕ
-                     </p>
-                     <p className="text-3xl max-sm:text-lg font-medium text-green-400">
-                        +0 баллов
-                     </p>
-                  </div>
-
-                  <div className="mt-5">
-                     <Chart />
-                  </div>
-               </div>
+               <FastingChart />
             </div>
          </main>
       </>
