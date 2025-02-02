@@ -7,48 +7,78 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { RiResetRightFill } from "react-icons/ri";
-import dayjs from "dayjs"; // Использование dayjs без utc
+import dayjs from "dayjs";
+import { TextField } from "@mui/material";
 
 interface Props {
    atom: WritableAtom<string, [string], void>;
-   onTimeChange: (newTime: string) => void; // Функция для обработки изменения времени
+   onTimeChange: (newTime: string) => void;
 }
 
 const CustomInput: React.FC<Props> = ({ atom, onTimeChange }) => {
-   const [value, setValue] = useAtom(atom); // atom, который будет хранить время
+   const [value, setValue] = useAtom(atom);
    const [isManualChange, setIsManualChange] = useState(false);
-   const [selectedTime, setSelectedTime] = useState<dayjs.Dayjs | null>(null); // Для хранения выбранного времени
+   const [selectedTime, setSelectedTime] = useState<dayjs.Dayjs | null>(null);
+   const [isFocused, setIsFocused] = useState(false); // Контроль фокуса
 
-   // Функция для обработки изменения времени в TimePicker
    const handleTimeChange = (newTime: dayjs.Dayjs | null) => {
       setSelectedTime(newTime);
-      setIsManualChange(true); // Иконка появляется, когда вводим вручную
+      setIsManualChange(true);
       if (newTime) {
          const formattedTime = newTime.format("HH:mm");
-         setValue(formattedTime); // Обновляем atom с выбранным временем в формате строки
-         onTimeChange(formattedTime); // Передаем новое время в родительский компонент
+         setValue(formattedTime);
+         onTimeChange(formattedTime);
       }
    };
 
-   // Инициализация selectedTime значением из atom
    useEffect(() => {
       if (value) {
-         setSelectedTime(dayjs(value, "HH:mm")); // Преобразуем строку из atom в dayjs объект
+         setSelectedTime(dayjs(value, "HH:mm"));
       }
    }, [value]);
 
    return (
-      <div className="relative">
+      <div className="relative gilroy-medium">
          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={["TimePicker"]}>
                <TimePicker
-                  value={selectedTime} // Отображаемое значение из selectedTime
-                  onChange={handleTimeChange} // Обрабатываем выбор времени
+                  value={selectedTime}
+                  onChange={handleTimeChange}
                   ampm={false}
                   viewRenderers={{
                      hours: renderTimeViewClock,
                      minutes: renderTimeViewClock,
                      seconds: renderTimeViewClock,
+                  }}
+                  slotProps={{
+                     textField: {
+                        onFocus: () => setIsFocused(true),
+                        onBlur: () => setIsFocused(false),
+                        helperText: isFocused ? "+100" : "",
+                     } as Partial<React.ComponentProps<typeof TextField>>,
+                  }}
+                  sx={{
+                     "& .MuiFormHelperText-root": {
+                        position: "absolute",
+                        top: "-11px",
+                        left: "50%",
+                        transform: "translateX(-70%)",
+                        color: "#fff",
+                        fontSize: "12px",
+                        fontWeight: "medium",
+                        backgroundColor: "#63db85",
+                        padding: "0px 8px",
+                        borderRadius: "20px",
+                     },
+                     "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                        fontSize: "20px",
+                        color: "#4467e3",
+                        "& fieldset": { borderColor: "#4467e3" },
+                        "&:hover fieldset": { borderColor: "#4467e3" },
+                        "&.Mui-focused fieldset": { borderColor: "#63db85" },
+                        "&.Mui-focused": { color: "#63db85" },
+                     },
                   }}
                />
             </DemoContainer>
@@ -56,13 +86,10 @@ const CustomInput: React.FC<Props> = ({ atom, onTimeChange }) => {
 
          {isManualChange && (
             <button className="absolute -right-7 top-1/2 transform -translate-y-6 cursor-pointer">
-               <RiResetRightFill size={25} color="#96a9eb" />
+               <RiResetRightFill size={25} color="#4467e3" />
             </button>
          )}
 
-         <p className="text-gray-500 text-lg max-sm:text-sm mt-1">
-            Пн, <span className="text-black">17:45 - 18:15</span>
-         </p>
       </div>
    );
 };

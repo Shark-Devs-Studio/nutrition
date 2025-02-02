@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: gilroy-medium;
+  src: url("/fonts/Gilroy-Medium.woff");
+  font-display: swap;
+}
+@font-face {
+  font-family: gilroy-bold;
+  src: url("/fonts/Gilroy-Bold.woff");
+  font-display: swap;
+}
+@font-face {
+  font-family: gilroy-extraBold;
+  src: url("/fonts/Gilroy-ExtraBold.woff");
+  font-display: swap;
+}
+@font-face {
+  font-family: gilroy-regular;
+  src: url("/fonts/Gilroy-Regular.woff");
+  font-display: swap;
+}
+
+.gilroy-medium {
+  font-family: gilroy-medium;
+}
+.gilroy-bold {
+  font-family: gilroy-bold;
+}
+.gilroy-extraBold {
+  font-family: gilroy-extraBold;
+}
+.gilroy-regular {
+  font-family: gilroy-regular;
+}
+
 .custom-container {
   @apply max-w-[1920px] w-full mx-auto px-6 max-xl:px-4 max-sm:px-2;
 }
@@ -13,4 +47,17 @@
 
 .MuiFormControl-root {
   min-width: 0 !important;
+}
+
+.MuiInputBase-input {
+  font-family: gilroy-medium !important;
+}
+
+.css-1umw9bq-MuiSvgIcon-root {
+  color: #4467e3 !important;
+}
+
+
+.text-shadow {
+  text-shadow: 0px 5px 10px rgba(0, 0, 0, 0.30);
 }

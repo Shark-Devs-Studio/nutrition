@@ -126,7 +126,7 @@ const Calendar = ({
                   return (
                      <div
                         key={idx}
-                        className={`${dayObj.isCourse ? "bg-white" : ""}`}
+                        className={`gilroy-medium ${dayObj.isCourse ? "bg-white" : ""}`}
                      >
                         <div
                            className={`relative px-2 py-2.5 rounded-lg cursor-pointer ${

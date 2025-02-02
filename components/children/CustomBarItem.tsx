@@ -1,8 +1,6 @@
 import React from "react";
 
 const CustomBarItem = ({ x, y, height, start, end, progress }: any) => {
-   console.log(x, y);
-
    return (
       <div
          style={{
