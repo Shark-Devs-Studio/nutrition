@@ -6,16 +6,16 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
-import { RiResetRightFill } from "react-icons/ri";
-import dayjs from "dayjs";
 import { TextField } from "@mui/material";
+import dayjs from "dayjs";
 
 interface Props {
    atom: WritableAtom<string, [string], void>;
    onTimeChange: (newTime: string) => void;
+   range: string[];
 }
 
-const CustomInput: React.FC<Props> = ({ atom, onTimeChange }) => {
+const CustomInput: React.FC<Props> = ({ atom, onTimeChange, range }) => {
    const [value, setValue] = useAtom(atom);
    const [isManualChange, setIsManualChange] = useState(false);
    const [selectedTime, setSelectedTime] = useState<dayjs.Dayjs | null>(null);
@@ -37,6 +37,18 @@ const CustomInput: React.FC<Props> = ({ atom, onTimeChange }) => {
       }
    }, [value]);
 
+   const isTimeDisabled = (time: dayjs.Dayjs) => {
+      const [start, end] = range.map((t) => dayjs(t, "HH:mm"));
+
+      if (start.isAfter(end)) {
+         // Если диапазон пересекает полночь (например, 22:00 - 02:00)
+         return time.isAfter(end) && time.isBefore(start);
+      } else {
+         // Обычный случай, когда время в пределах одного дня
+         return time.isBefore(start) || time.isAfter(end);
+      }
+   };
+
    return (
       <div className="relative gilroy-medium">
          <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -50,6 +62,9 @@ const CustomInput: React.FC<Props> = ({ atom, onTimeChange }) => {
                      minutes: renderTimeViewClock,
                      seconds: renderTimeViewClock,
                   }}
+                  shouldDisableTime={(time, type) =>
+                     type === "hours" && isTimeDisabled(time)
+                  }
                   slotProps={{
                      textField: {
                         onFocus: () => setIsFocused(true),
@@ -83,13 +98,6 @@ const CustomInput: React.FC<Props> = ({ atom, onTimeChange }) => {
                />
             </DemoContainer>
          </LocalizationProvider>
-
-         {isManualChange && (
-            <button className="absolute -right-7 top-1/2 transform -translate-y-6 cursor-pointer">
-               <RiResetRightFill size={25} color="#4467e3" />
-            </button>
-         )}
-
       </div>
    );
 };

@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import CustomInput from "./children/CustomInput";
-import { fastingStartAtom, fastingEndAtom } from "@/lib/state";
+import { fastingStartAtom, fastingEndAtom, mealsTimeAtom } from "@/lib/state";
 import { useAtom } from "jotai";
 import MuiTooltip from "./children/MuiTooltip";
 
 const TimerSettings = () => {
    const [fastingStart, setFastingStart] = useAtom(fastingStartAtom);
    const [fastingEnd, setFastingEnd] = useAtom(fastingEndAtom);
+   const [mealsTime] = useAtom(mealsTimeAtom);
 
    // Функция для обновления времени начала
    const handleStartTimeChange = (newStartTime: string) => {
@@ -30,6 +31,7 @@ const TimerSettings = () => {
                title="Баллы за попадание начала гололдания в циркадный ритм"
             ></MuiTooltip> */}
             <CustomInput
+               range={mealsTime.breakfastRange}
                atom={fastingStartAtom}
                onTimeChange={handleStartTimeChange} // обновляем состояние
             />
@@ -49,6 +51,7 @@ const TimerSettings = () => {
             >
                </MuiTooltip> */}
             <CustomInput
+               range={mealsTime.supperRange}
                atom={fastingEndAtom}
                onTimeChange={handleEndTimeChange} // обновляем состояние
             />

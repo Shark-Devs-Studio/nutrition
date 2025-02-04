@@ -11,7 +11,8 @@ import {
 import { useRef } from "react";
 import { format, addMinutes, eachMinuteOfInterval } from "date-fns";
 import ChartDataLabels from "chartjs-plugin-datalabels"; // импортируем плагин
-import { fastingEndAtom, fastingStartAtom } from "@/lib/state";
+import { fastingEndAtom, fastingStartAtom, isRunningAtom } from "@/lib/state";
+import { useAtom } from "jotai";
 
 ChartJS.register(
    CategoryScale,
@@ -172,13 +173,17 @@ const options: any = {
 
 export default function FloatingBarChart() {
    const chartRef = useRef(null);
+   const [isRunning, setIsRunning] = useAtom(isRunningAtom);
 
    return (
       <div className="w-full">
          <div className="max-w-7xl w-full mx-auto px-4 py-5">
             <div className="flex items-center justify-between py-5 px-10 max-sm:px-4 max-sm:py-3 rounded-xl text-white bg-blue">
-               <button className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
-                  Завершить ГОЛОДАНИЕ
+               <button
+                  onClick={() => setIsRunning((prev) => !prev)}
+                  className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase"
+               >
+                  {isRunning ? "Зовершить ГОЛОДАНИЕ" : "Начать ГОЛОДАНИЕ"}
                </button>
                <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">
                   +0 баллов

@@ -3,60 +3,92 @@ import React, { useEffect, useState } from "react";
 import { IoSettingsOutline, IoTimerOutline } from "react-icons/io5";
 import { Button } from "./ui/button";
 import { useAtom } from "jotai";
-import { fastingStartAtom, fastingEndAtom } from "@/lib/state";
+import {
+   fastingStartAtom,
+   fastingEndAtom,
+   isRunningAtom,
+   fastingEndedAtom,
+   userChangedTimeAtom,
+   scheduledTimeAtom,
+} from "@/lib/state";
 import MuiTooltip from "./children/MuiTooltip";
 
 const Timer = () => {
    const [start] = useAtom(fastingStartAtom);
    const [end] = useAtom(fastingEndAtom);
+   const [isRunning, setIsRunning] = useAtom(isRunningAtom);
+   const [fastingEnded, setFastingEnded] = useAtom(fastingEndedAtom);
+   const [userChangedTime, setUserChangedTime] = useAtom(userChangedTimeAtom);
+   const [scheduledTime] = useAtom(scheduledTimeAtom);
+
    const [timeLeft, setTimeLeft] = useState(0);
    const [totalDuration, setTotalDuration] = useState(0);
-   // const [open, setOpen] = useState(false);
-   // const [tooltip, setTooltip] = useState(false);
-
-   // const handleTooltipOpen = () => {
-   //    setOpen(true);
-   // };
-   // const handleTooltipOpen2 = () => {
-   //    setTooltip(true);
-   // };
+   const [bonus, setBonus] = useState(0);
 
    useEffect(() => {
-      const [startHours, startMinutes] = start.split(":").map(Number);
-      const [endHours, endMinutes] = end.split(":").map(Number);
+      if (!isRunning || !start || !end) return;
 
-      const startTimeInMinutes = startHours * 60 + startMinutes;
-      let endTimeInMinutes = endHours * 60 + endMinutes;
+      const updateTimer = () => {
+         const now = new Date();
+         const [startHours, startMinutes] = start.split(":").map(Number);
+         const [endHours, endMinutes] = end.split(":").map(Number);
+         const [scheduledHours, scheduledMinutes] = scheduledTime.startTime
+            .split(":")
+            .map(Number);
 
-      // Если время окончания раньше времени начала, значит оно на следующий день
-      if (endTimeInMinutes < startTimeInMinutes) {
-         endTimeInMinutes += 1440; // добавляем 24 часа в минутах
-      }
+         let startTime = new Date(now);
+         startTime.setHours(startHours, startMinutes, 0, 0);
 
-      const timeDifference = endTimeInMinutes - startTimeInMinutes;
+         let endTime = new Date(now);
+         endTime.setHours(endHours, endMinutes, 0, 0);
 
-      setTimeLeft(timeDifference * 60);
-      setTotalDuration(timeDifference * 60);
+         // Если время окончания раньше начала, значит оно на следующий день
+         if (endTime <= startTime) {
+            endTime.setDate(endTime.getDate() + 1);
+         }
 
-      const interval = setInterval(() => {
-         setTimeLeft((prevTime) => {
-            if (prevTime <= 0) {
-               clearInterval(interval);
-               return 0;
-            }
-            return prevTime - 1;
-         });
-      }, 1000);
+         // Общее время голодания
+         const total = Math.floor(
+            (endTime.getTime() - startTime.getTime()) / 1000
+         );
+         setTotalDuration(total);
 
+         // Если текущее время раньше старта, то таймер ещё не начался
+         if (now < startTime) {
+            setTimeLeft(total);
+            return;
+         }
+
+         // Оставшееся время до конца голодания
+         const diff = Math.max(
+            0,
+            Math.floor((endTime.getTime() - now.getTime()) / 1000)
+         );
+         setTimeLeft(diff);
+
+         // Проверка на бонус (±30 минут от запланированного времени)
+         let scheduledStartTime = new Date(startTime);
+         scheduledStartTime.setHours(scheduledHours, scheduledMinutes, 0, 0);
+
+         const timeDifference = Math.abs(
+            startTime.getTime() - scheduledStartTime.getTime()
+         );
+         setBonus(timeDifference <= 30 * 60 * 1000 ? 250 : 0);
+      };
+
+      updateTimer();
+      const interval = setInterval(updateTimer, 1000);
       return () => clearInterval(interval);
-   }, [start, end]);
+   }, [start, end, isRunning, scheduledTime]);
 
-   // Преобразуем оставшееся время в формат ЧЧ:ММ:СС
-   const hours = String(Math.floor(timeLeft / 3600)).padStart(2, "0");
-   const minutes = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, "0");
-   const seconds = String(timeLeft % 60).padStart(2, "0");
+   const hours = Math.floor(timeLeft / 3600)
+      .toString()
+      .padStart(2, "0");
+   const minutes = Math.floor((timeLeft % 3600) / 60)
+      .toString()
+      .padStart(2, "0");
+   const seconds = (timeLeft % 60).toString().padStart(2, "0");
 
-   // Расчёт прогресса
    const progress = totalDuration > 0 ? (timeLeft / totalDuration) * 282.6 : 0;
 
    return (
@@ -69,7 +101,7 @@ const Timer = () => {
             <p className="text-2xl max-xl:text-xl max-sm:text-sm gilroy-regular">
                Вы голодаете: {hours}:{minutes}
                <span className="text-green ml-5 max-sm:ml-2">
-                  (макс = {totalDuration / 3600} часа)
+                  (макс = {Math.floor(totalDuration / 3600)} часа)
                </span>
             </p>
          </div>
@@ -77,11 +109,11 @@ const Timer = () => {
          <div className="flex gap-10 justify-center items-center my-10 text-white">
             <MuiTooltip
                placement="top-start"
-               title="Баллы за совпадение времени начала гололдания с предыдущим днем ±30 мин"
+               title="Баллы за совпадение времени начала голодания с предыдущим днем ±30 мин"
             >
-               <div className="flex items-centers gap-2 max-sm:gap-0.5 rounded-full px-3 py-1.5 max-sm:py-1 max-sm:px-2 cursor-pointer bg-green">
+               <div className="flex items-center gap-2 max-sm:gap-0.5 rounded-full px-3 py-1.5 max-sm:py-1 max-sm:px-2 cursor-pointer bg-green">
                   <p className="text-xl max-md:text-base max-sm:text-sm gilroy-bold">
-                     +250
+                     +{bonus}
                   </p>
                   <IoTimerOutline className="text-[25px] max-sm:text-[18px]" />
                </div>
@@ -106,9 +138,9 @@ const Timer = () => {
                      r="45"
                      fill="none"
                      stroke="#4ade80"
-                     strokeWidth="8"
+                     strokeWidth="6"
                      strokeDasharray="282.6"
-                     strokeDashoffset={progress} // Отображаем прогресс
+                     strokeDashoffset={progress}
                      transform="rotate(-90 50 50)"
                   />
                </svg>
@@ -130,7 +162,8 @@ const Timer = () => {
 
             <div className="flex items-center gap-2 max-sm:gap-0.5 rounded-full px-3 py-1.5 max-sm:py-1 max-sm:px-2 bg-green">
                <p className="text-xl max-md:text-base max-sm:text-sm gilroy-bold">
-                  14/10
+                  {Math.floor(totalDuration / 3600)}/
+                  {24 - Math.floor(totalDuration / 3600)}
                </p>
                <IoSettingsOutline className="text-[25px] max-sm:text-[18px]" />
             </div>
