@@ -10,61 +10,38 @@ import { TextField } from "@mui/material";
 import dayjs from "dayjs";
 
 interface Props {
-   atom: WritableAtom<string, [string], void>;
-   onTimeChange: (newTime: string) => void;
+   value: any;
+   time: any;
    range: string[];
+   disabled: boolean;
+   getTime: (time: any) => void;
+   status: boolean;
 }
 
-const CustomInput: React.FC<Props> = ({ atom, onTimeChange, range }) => {
-   const [value, setValue] = useAtom(atom);
-   const [isManualChange, setIsManualChange] = useState(false);
-   const [selectedTime, setSelectedTime] = useState<dayjs.Dayjs | null>(null);
+const CustomInput: React.FC<Props> = ({
+   value,
+   range,
+   time,
+   disabled,
+   getTime,
+   status,
+}) => {
    const [isFocused, setIsFocused] = useState(false); // Контроль фокуса
-
-   const handleTimeChange = (newTime: dayjs.Dayjs | null) => {
-      setSelectedTime(newTime);
-      setIsManualChange(true);
-      if (newTime) {
-         const formattedTime = newTime.format("HH:mm");
-         setValue(formattedTime);
-         onTimeChange(formattedTime);
-      }
-   };
-
-   useEffect(() => {
-      if (value) {
-         setSelectedTime(dayjs(value, "HH:mm"));
-      }
-   }, [value]);
-
-   const isTimeDisabled = (time: dayjs.Dayjs) => {
-      const [start, end] = range.map((t) => dayjs(t, "HH:mm"));
-
-      if (start.isAfter(end)) {
-         // Если диапазон пересекает полночь (например, 22:00 - 02:00)
-         return time.isAfter(end) && time.isBefore(start);
-      } else {
-         // Обычный случай, когда время в пределах одного дня
-         return time.isBefore(start) || time.isAfter(end);
-      }
-   };
 
    return (
       <div className="relative gilroy-medium">
          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={["TimePicker"]}>
                <TimePicker
-                  value={selectedTime}
-                  onChange={handleTimeChange}
+                  onChange={(e) => getTime(dayjs(e))}
+                  disabled={disabled}
                   ampm={false}
+                  value={time ? value : null}
                   viewRenderers={{
                      hours: renderTimeViewClock,
                      minutes: renderTimeViewClock,
                      seconds: renderTimeViewClock,
                   }}
-                  shouldDisableTime={(time, type) =>
-                     type === "hours" && isTimeDisabled(time)
-                  }
                   slotProps={{
                      textField: {
                         onFocus: () => setIsFocused(true),
@@ -78,21 +55,33 @@ const CustomInput: React.FC<Props> = ({ atom, onTimeChange, range }) => {
                         top: "-11px",
                         left: "50%",
                         transform: "translateX(-70%)",
-                        color: "#fff",
+                        color: status ? "red" : "#4467e3",
                         fontSize: "12px",
                         fontWeight: "medium",
                         backgroundColor: "#63db85",
                         padding: "0px 8px",
                         borderRadius: "20px",
                      },
+                     "& .css-1umw9bq-MuiSvgIcon-root": {
+                        color: status ? "red" : "#4467e3" + " !important",
+                     },
+                     "& ::placeholder": {
+                        color: status ? "red" : "#4467e3",
+                     },
                      "& .MuiOutlinedInput-root": {
                         borderRadius: "12px",
                         fontSize: "20px",
                         color: "#4467e3",
-                        "& fieldset": { borderColor: "#4467e3" },
-                        "&:hover fieldset": { borderColor: "#4467e3" },
-                        "&.Mui-focused fieldset": { borderColor: "#63db85" },
-                        "&.Mui-focused": { color: "#63db85" },
+                        "& fieldset": {
+                           borderColor: status ? "red" : "#4467e3",
+                        },
+                        "&:hover fieldset": {
+                           borderColor: status ? "red" : "#4467e3",
+                        },
+                        "&.Mui-focused fieldset": {
+                           borderColor: status ? "red" : "#63db85",
+                        },
+                        "&.Mui-focused": { color: status ? "red" : "#63db85" },
                      },
                   }}
                />

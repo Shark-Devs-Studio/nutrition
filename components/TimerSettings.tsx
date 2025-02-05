@@ -1,64 +1,66 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CustomInput from "./children/CustomInput";
-import { fastingStartAtom, fastingEndAtom, mealsTimeAtom } from "@/lib/state";
+import {
+   fastingStartAtom,
+   fastingEndAtom,
+   isFastingAtom,
+   mealsTimeAtom,
+   isTimerFinishedAtom,
+} from "@/lib/state";
 import { useAtom } from "jotai";
-import MuiTooltip from "./children/MuiTooltip";
+import dayjs from "dayjs";
+
+// Функция для форматирования времени в формат 00:00
+const formatTime = (date: Date) => dayjs(date).format("HH:mm");
 
 const TimerSettings = () => {
    const [fastingStart, setFastingStart] = useAtom(fastingStartAtom);
    const [fastingEnd, setFastingEnd] = useAtom(fastingEndAtom);
+   const [isFasting, setIsFasting] = useAtom(isFastingAtom);
    const [mealsTime] = useAtom(mealsTimeAtom);
-
-   // Функция для обновления времени начала
-   const handleStartTimeChange = (newStartTime: string) => {
-      setFastingStart(newStartTime); // обновляем atom для начала голодания
-   };
-
-   // Функция для обновления времени конца
-   const handleEndTimeChange = (newEndTime: string) => {
-      setFastingEnd(newEndTime); // обновляем atom для конца голодания
-   };
+   const [isTimerFinished, setIsTimerFinished] = useAtom(isTimerFinishedAtom);
 
    return (
-      <div className="flex items-center justify-center max-md:justify-around md:gap-14 sm:px-4 py-5 mt-0">
-         <div className="max-md:w-40 max-sm:w-32 relative">
-            <p className="text-xl max-md:text-base gilroy-medium">
-               Начало | 26.08
-            </p>
-            {/* <MuiTooltip
-               placement="top"
-               title="Баллы за попадание начала гололдания в циркадный ритм"
-            ></MuiTooltip> */}
-            <CustomInput
-               range={mealsTime.breakfastRange}
-               atom={fastingStartAtom}
-               onTimeChange={handleStartTimeChange} // обновляем состояние
-            />
-            <p className="text-lg max-sm:text-sm mt-1 gilroy-regular">
-               👍 Пн,
-               <span className="text-black gilroy-medium"> 17:45 - 18:15</span>
-            </p>
-         </div>
+      <div className="flex flex-col items-center justify-center gap-4 py-5">
+         <div className="flex gap-10">
+            {/* Начало голодания */}
+            <div className="w-40 relative">
+               <p className="text-xl gilroy-medium">Начало | 26.08</p>
+               <CustomInput
+                  getTime={() => {}}
+                  time={fastingStart}
+                  range={mealsTime.breakfastRange}
+                  value={fastingStart || ""}
+                  disabled={false}
+                  status={false}
+               />
+               <p className="text-lg max-sm:text-sm mt-1 gilroy-regular">
+                  👍 Пн,
+                  <span className="text-black gilroy-medium">
+                     17:45 - 18:15
+                  </span>
+               </p>
+            </div>
 
-         <div className="max-md:w-40 max-sm:w-32 relative">
-            <p className="text-xl max-md:text-base gilroy-medium ">
-               Конец | 26.08
-            </p>
-            {/* <MuiTooltip
-               placement="top"
-               title="Баллы за попадание начала гололдания в циркадный ритм"
-            >
-               </MuiTooltip> */}
-            <CustomInput
-               range={mealsTime.supperRange}
-               atom={fastingEndAtom}
-               onTimeChange={handleEndTimeChange} // обновляем состояние
-            />
-            <p className="text-lg max-sm:text-sm mt-1 gilroy-regular">
-               👍 Пн,
-               <span className="text-black gilroy-medium"> 17:45 - 18:15</span>
-            </p>
+            {/* Конец голодания */}
+            <div className="w-40 relative">
+               <p className="text-xl gilroy-medium">Конец | 27.08</p>
+               <CustomInput
+                  getTime={setFastingEnd}
+                  time={fastingEnd}
+                  range={mealsTime.supperRange}
+                  value={fastingEnd || ""}
+                  disabled={!isTimerFinished}
+                  status={isTimerFinished && !fastingEnd}
+               />
+               <p className="text-lg max-sm:text-sm mt-1 gilroy-regular">
+                  👍 Пн,
+                  <span className="text-black gilroy-medium">
+                     17:45 - 18:15
+                  </span>
+               </p>
+            </div>
          </div>
       </div>
    );

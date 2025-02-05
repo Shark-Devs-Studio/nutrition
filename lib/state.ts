@@ -1,28 +1,23 @@
+import dayjs from "dayjs";
 import { atom } from "jotai";
 
-// Атомы для времени начала и окончания
-export const fastingStartAtom = atom("01:00");
-export const fastingEndAtom = atom("07:00");
+export const fastingStartAtom = atom<dayjs.Dayjs | null>(null);
+export const fastingEndAtom = atom<dayjs.Dayjs | null>(null);
+export const isFastingAtom = atom<boolean>(false);
 
-// Атом для управления таймером (запущен или нет)
-export const isRunningAtom = atom(false);
-
-// Атом, отслеживающий, закончилось ли время голодания
-export const fastingEndedAtom = atom(false);
-
-// Атом, отслеживающий, изменял ли пользователь время вручную
-export const userChangedTimeAtom = atom(false);
+// Атом для отслеживания, завершён ли таймер
+export const isTimerFinishedAtom = atom(false);
 
 // Атом для бонусов
 export const bonusPointsAtom = atom(0);
 
 // Тестовый атом для запланированного времени (из бэка)
 export const scheduledTimeAtom = atom({
-   startTime: "02:30",
-   endTime: "18:45",
+   startTime: "2025-02-04T18:00:00",
+   endTime: "2025-02-04T08:00:00",
 });
 
 export const mealsTimeAtom = atom({
-   breakfastRange: ["01:00", "03:00"],
+   breakfastRange: ["11:00", "20:00"],
    supperRange: ["07:00", "14:00"],
 });

@@ -4,104 +4,93 @@ import { IoSettingsOutline, IoTimerOutline } from "react-icons/io5";
 import { Button } from "./ui/button";
 import { useAtom } from "jotai";
 import {
-   fastingStartAtom,
    fastingEndAtom,
-   isRunningAtom,
-   fastingEndedAtom,
-   userChangedTimeAtom,
-   scheduledTimeAtom,
+   fastingStartAtom,
+   isFastingAtom,
+   isTimerFinishedAtom,
 } from "@/lib/state";
 import MuiTooltip from "./children/MuiTooltip";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import { mealsTimeAtom } from "@/lib/state";
+
+dayjs.extend(duration);
 
 const Timer = () => {
    const [start] = useAtom(fastingStartAtom);
    const [end] = useAtom(fastingEndAtom);
-   const [isRunning, setIsRunning] = useAtom(isRunningAtom);
-   const [fastingEnded, setFastingEnded] = useAtom(fastingEndedAtom);
-   const [userChangedTime, setUserChangedTime] = useAtom(userChangedTimeAtom);
-   const [scheduledTime] = useAtom(scheduledTimeAtom);
-
-   const [timeLeft, setTimeLeft] = useState(0);
-   const [totalDuration, setTotalDuration] = useState(0);
+   const [isFasting] = useAtom(isFastingAtom);
+   const [isTimerFinished, setIsTimerFinished] = useAtom(isTimerFinishedAtom);
+   const [timeLeft, setTimeLeft] = useState("00:00:00");
    const [bonus, setBonus] = useState(0);
 
+   const [mealsTime] = useAtom(mealsTimeAtom);
+   const supperEnd = dayjs(mealsTime.supperRange[1], "HH:mm"); // 14:00
+
+   const [progress, setProgress] = useState(0);
+
    useEffect(() => {
-      if (!isRunning || !start || !end) return;
+      if (isFasting && start) {
+         const interval = setInterval(() => {
+            const now = dayjs();
 
-      const updateTimer = () => {
-         const now = new Date();
-         const [startHours, startMinutes] = start.split(":").map(Number);
-         const [endHours, endMinutes] = end.split(":").map(Number);
-         const [scheduledHours, scheduledMinutes] = scheduledTime.startTime
-            .split(":")
-            .map(Number);
+            // Общее время от начала до конца
+            const totalDuration = supperEnd.isBefore(start)
+               ? supperEnd.add(1, "day").diff(start)
+               : supperEnd.diff(start);
 
-         let startTime = new Date(now);
-         startTime.setHours(startHours, startMinutes, 0, 0);
+            // Время, прошедшее с начала
+            const elapsedDuration = now.isBefore(start)
+               ? now.add(1, "day").diff(start)
+               : now.diff(start);
 
-         let endTime = new Date(now);
-         endTime.setHours(endHours, endMinutes, 0, 0);
+            // Прогресс в процентах
+            const progressPercent = (elapsedDuration / totalDuration) * 100;
+            setProgress(progressPercent);
 
-         // Если время окончания раньше начала, значит оно на следующий день
-         if (endTime <= startTime) {
-            endTime.setDate(endTime.getDate() + 1);
-         }
+            // Обновляем оставшееся время
+            const timeLeftDuration = dayjs.duration(elapsedDuration);
+            setTimeLeft(timeLeftDuration.format("HH:mm:ss"));
 
-         // Общее время голодания
-         const total = Math.floor(
-            (endTime.getTime() - startTime.getTime()) / 1000
-         );
-         setTotalDuration(total);
+            // Останавливаем таймер, если текущее время больше supperEnd
+            const supperEndAdjusted = supperEnd.isBefore(start)
+               ? supperEnd.add(1, "day")
+               : supperEnd;
 
-         // Если текущее время раньше старта, то таймер ещё не начался
-         if (now < startTime) {
-            setTimeLeft(total);
-            return;
-         }
+            if (now.isAfter(supperEndAdjusted)) {
+               clearInterval(interval);
+               setTimeLeft(dayjs.duration(totalDuration).format("HH:mm:ss"));
+               setProgress(100);
+               setIsTimerFinished(true);
+            }
+         }, 1000);
 
-         // Оставшееся время до конца голодания
-         const diff = Math.max(
-            0,
-            Math.floor((endTime.getTime() - now.getTime()) / 1000)
-         );
-         setTimeLeft(diff);
+         return () => clearInterval(interval);
+      }
+   }, [isFasting, start, supperEnd, setIsTimerFinished]);
 
-         // Проверка на бонус (±30 минут от запланированного времени)
-         let scheduledStartTime = new Date(startTime);
-         scheduledStartTime.setHours(scheduledHours, scheduledMinutes, 0, 0);
-
-         const timeDifference = Math.abs(
-            startTime.getTime() - scheduledStartTime.getTime()
-         );
-         setBonus(timeDifference <= 30 * 60 * 1000 ? 250 : 0);
-      };
-
-      updateTimer();
-      const interval = setInterval(updateTimer, 1000);
-      return () => clearInterval(interval);
-   }, [start, end, isRunning, scheduledTime]);
-
-   const hours = Math.floor(timeLeft / 3600)
-      .toString()
-      .padStart(2, "0");
-   const minutes = Math.floor((timeLeft % 3600) / 60)
-      .toString()
-      .padStart(2, "0");
-   const seconds = (timeLeft % 60).toString().padStart(2, "0");
-
-   const progress = totalDuration > 0 ? (timeLeft / totalDuration) * 282.6 : 0;
+   useEffect(() => {
+      if (!isFasting && start) {
+         const now = dayjs();
+         const elapsed = dayjs.duration(now.diff(start));
+         setTimeLeft(elapsed.format("HH:mm:ss")); // Фиксируем прошедшее время
+      }
+   }, [isFasting, start]);
 
    return (
       <div className="relative px-4 py-8 overflow-hidden">
          <div className="bg-blue h-full w-full absolute -z-10 -top-40 max-sm:-top-44 left-0 scale-125 max-sm:scale-150 rounded-b-[40%]" />
          <div className="text-white text-center">
             <h2 className="text-5xl max-xl:text-4xl max-sm:text-2xl gilroy-medium mb-1">
-               Сейчас: <span className="gilroy-extraBold">ГОЛОДАНИЕ</span>
+               Сейчас:
+               <span className="gilroy-extraBold uppercase">
+                  {isFasting ? " голодание" : " питание"}
+               </span>
             </h2>
             <p className="text-2xl max-xl:text-xl max-sm:text-sm gilroy-regular">
-               Вы голодаете: {hours}:{minutes}
+               Вы голодаете: {timeLeft.slice(0, 5)}
                <span className="text-green ml-5 max-sm:ml-2">
-                  (макс = {Math.floor(totalDuration / 3600)} часа)
+                  (макс = 14 часа)
                </span>
             </p>
          </div>
@@ -140,13 +129,13 @@ const Timer = () => {
                      stroke="#4ade80"
                      strokeWidth="6"
                      strokeDasharray="282.6"
-                     strokeDashoffset={progress}
+                     strokeDashoffset={282.6 - (282.6 * progress) / 100}
                      transform="rotate(-90 50 50)"
                   />
                </svg>
                <div className="absolute text-center gilroy-extraBold">
                   <div className="text-6xl max-md:text-4xl max-sm:text-[34px] mt-5">
-                     {hours}:{minutes}:{seconds}
+                     {timeLeft}
                   </div>
 
                   <MuiTooltip
@@ -162,12 +151,17 @@ const Timer = () => {
 
             <div className="flex items-center gap-2 max-sm:gap-0.5 rounded-full px-3 py-1.5 max-sm:py-1 max-sm:px-2 bg-green">
                <p className="text-xl max-md:text-base max-sm:text-sm gilroy-bold">
-                  {Math.floor(totalDuration / 3600)}/
-                  {24 - Math.floor(totalDuration / 3600)}
+                  14/10
                </p>
                <IoSettingsOutline className="text-[25px] max-sm:text-[18px]" />
             </div>
          </div>
+
+         {isTimerFinished && !end && (
+            <p className="w-full text-3xl max-lg:text-2xl max-sm:text-lg text-center absolute bottom-36 max-sm:bottom-28 left-1/2 -translate-x-1/2 text-white">
+               Ваше время голодания закончилось!
+            </p>
+         )}
 
          <div className="mx-auto flex w-fit max-sm:mt-16">
             <Button className="relative text-2xl max-sm:text-xl px-10 py-10 max-sm:py-8 max-sm:px-10 rounded-t-3xl rounded-b-[100px] border border-white text-white bg-blue">

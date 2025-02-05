@@ -11,8 +11,14 @@ import {
 import { useRef } from "react";
 import { format, addMinutes, eachMinuteOfInterval } from "date-fns";
 import ChartDataLabels from "chartjs-plugin-datalabels"; // импортируем плагин
-import { fastingEndAtom, fastingStartAtom, isRunningAtom } from "@/lib/state";
+import {
+   fastingEndAtom,
+   fastingStartAtom,
+   isFastingAtom,
+   isTimerFinishedAtom,
+} from "@/lib/state";
 import { useAtom } from "jotai";
+import dayjs from "dayjs";
 
 ChartJS.register(
    CategoryScale,
@@ -46,10 +52,10 @@ const parseTime = (time: string) => {
 
 const currentTime = format(new Date(), "HH:mm");
 
-const effectiveFastingEnd =
-   currentTime > fastingEndAtom.init.toString()
-      ? fastingEndAtom.init.toString()
-      : currentTime;
+// const effectiveFastingEnd =
+//    currentTime > fastingEndAtom.init.toString()
+//       ? fastingEndAtom.init.toString()
+//       : currentTime;
 
 const data = [
    { day: "Ср-Чт", start: "20:08", end: "12:44" },
@@ -60,8 +66,8 @@ const data = [
    { day: "Пн-Вт", start: "20:05", end: "11:35" },
    {
       day: "Вт-Ср",
-      start: fastingStartAtom.init.toString(),
-      end: effectiveFastingEnd,
+      start: "20:05",
+      end: "11:35",
       color: "green",
    },
 ];
@@ -172,19 +178,52 @@ const options: any = {
 };
 
 export default function FloatingBarChart() {
+   const [fastingStart, setFastingStart] = useAtom(fastingStartAtom);
+   const [fastingEnd, setFastingEnd] = useAtom(fastingEndAtom);
+   const [isFasting, setIsFasting] = useAtom(isFastingAtom);
+   const [isTimerFinished, setIsTimerFinished] = useAtom(isTimerFinishedAtom);
+
    const chartRef = useRef(null);
-   const [isRunning, setIsRunning] = useAtom(isRunningAtom);
+
+   const handleStartFasting = () => {
+      setIsFasting(true);
+      setFastingStart(dayjs());
+   };
+
+   const handleEndFasting = () => {
+      setIsFasting(false);
+      !isTimerFinished && setFastingEnd(dayjs());
+   };
 
    return (
-      <div className="w-full">
+      <div className="w-full mt-5">
          <div className="max-w-7xl w-full mx-auto px-4 py-5">
-            <div className="flex items-center justify-between py-5 px-10 max-sm:px-4 max-sm:py-3 rounded-xl text-white bg-blue">
-               <button
-                  onClick={() => setIsRunning((prev) => !prev)}
-                  className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase"
-               >
-                  {isRunning ? "Зовершить ГОЛОДАНИЕ" : "Начать ГОЛОДАНИЕ"}
-               </button>
+            {isTimerFinished && !fastingEnd && (
+               <p className="text-[red] text-3xl max-lg:text-2xl max-sm:text-lg text-center mb-5">
+                  Установите верное время окончания!
+               </p>
+            )}
+            <div
+               className={`flex items-center justify-between py-5 px-10 max-sm:px-4 max-sm:py-3 rounded-xl text-white ${
+                  isTimerFinished && !fastingEnd ? "bg-[#c8c8c8] " : "bg-blue"
+               }`}
+            >
+               {!isFasting ? (
+                  <button
+                     onClick={handleStartFasting}
+                     className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase"
+                  >
+                     Начать ГОЛОДАНИЕ
+                  </button>
+               ) : (
+                  <button
+                     disabled={isTimerFinished && !fastingEnd}
+                     onClick={handleEndFasting}
+                     className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase"
+                  >
+                     Зовершить ГОЛОДАНИЕ
+                  </button>
+               )}
                <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">
                   +0 баллов
                </p>
