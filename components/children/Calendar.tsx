@@ -20,8 +20,8 @@ import {
 
 const courses = [
    1, 2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 24, 25, 26, 27, 28, 29, 30, 31,
-]; // Дни с курсами
-const trainings = [12, 14, 16, 18]; // Дни с тренировками
+];
+const trainings = [12, 14, 16, 18];
 const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
 interface CalendarProps {

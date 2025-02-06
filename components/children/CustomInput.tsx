@@ -26,7 +26,7 @@ const CustomInput: React.FC<Props> = ({
    getTime,
    status,
 }) => {
-   const [isFocused, setIsFocused] = useState(false); // Контроль фокуса
+   const [isFocused, setIsFocused] = useState(false);
 
    return (
       <div className="relative gilroy-medium">

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import CustomInput from "./children/CustomInput";
 import {
    fastingStartAtom,
@@ -9,10 +9,6 @@ import {
    isTimerFinishedAtom,
 } from "@/lib/state";
 import { useAtom } from "jotai";
-import dayjs from "dayjs";
-
-// Функция для форматирования времени в формат 00:00
-const formatTime = (date: Date) => dayjs(date).format("HH:mm");
 
 const TimerSettings = () => {
    const [fastingStart, setFastingStart] = useAtom(fastingStartAtom);
@@ -43,7 +39,6 @@ const TimerSettings = () => {
                </p>
             </div>
 
-            {/* Конец голодания */}
             <div className="w-40 relative">
                <p className="text-xl gilroy-medium">Конец | 27.08</p>
                <CustomInput

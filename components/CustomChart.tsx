@@ -1,23 +1,48 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Chart } from "chart.js";
+import { useAtom } from "jotai";
 import dayjs from "dayjs";
-import CustomBar from "./children/CustomBarItem";
 import { addMinutes, eachMinuteOfInterval, format } from "date-fns";
+
+import CustomBar from "./children/CustomBarItem";
+
+import {
+   Chart as ChartJS,
+   CategoryScale,
+   LinearScale,
+   BarElement,
+   Tooltip,
+   Legend,
+   Chart,
+   BarController,
+} from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
    fastingEndAtom,
    fastingStartAtom,
    isFastingAtom,
+   isTimerFinishedAtom,
    mealsTimeAtom,
 } from "@/lib/state";
-import { useAtom } from "jotai";
+
+ChartJS.register(
+   CategoryScale,
+   LinearScale,
+   BarElement,
+   BarController,
+   Tooltip,
+   Legend,
+   ChartDataLabels
+);
 
 const CustomChart = () => {
-   const [start] = useAtom(fastingStartAtom);
-   const [end] = useAtom(fastingEndAtom);
-   const [isFasting] = useAtom(isFastingAtom);
+   const [start, setStart] = useAtom(fastingStartAtom);
+   const [end, setEnd] = useAtom(fastingEndAtom);
+   const [isFasting, setIsFasting] = useAtom(isFastingAtom);
    const chartRef = useRef<any>(null);
    const [customBars, setCustomBars] = useState<any[]>([]);
+
+   const [isTimerFinished, setIsTimerFinished] = useAtom(isTimerFinishedAtom);
 
    const [mealsTime] = useAtom(mealsTimeAtom);
    const supperEnd = dayjs(mealsTime.supperRange[1], "HH:mm");
@@ -25,6 +50,16 @@ const CustomChart = () => {
    const startTime = new Date();
    startTime.setHours(9, 0, 0, 0);
    const endTime = addMinutes(startTime, 33 * 60);
+
+   const handleStartFasting = () => {
+      setIsFasting(true);
+      setStart(dayjs());
+   };
+
+   const handleEndFasting = () => {
+      setIsFasting(false);
+      !isTimerFinished && setEnd(dayjs());
+   };
 
    const customTicks = eachMinuteOfInterval(
       { start: startTime, end: endTime },
@@ -34,11 +69,11 @@ const CustomChart = () => {
    const timeToIndex = (time: string) => customTicks.indexOf(time);
 
    const parseTime = (time: string | null) => {
-      if (!time) return customTicks.length - 1; // если time null или undefined, возвращаем последний индекс
+      if (!time) return customTicks.length - 1;
 
       const parsedTime = new Date(`1982-01-01T${time}:00`);
 
-      if (isNaN(parsedTime.getTime())) return customTicks.length - 1; // если время невалидное, возвращаем последний индекс
+      if (isNaN(parsedTime.getTime())) return customTicks.length - 1;
 
       const formattedTime = format(parsedTime, "HH:mm");
 
@@ -66,9 +101,9 @@ const CustomChart = () => {
                end: end
                   ? dayjs(end).format("HH:mm")
                   : supperEnd.format("HH:mm"),
-               progress: 50,
+               progress: end ? 100 : 50,
             },
-         ].filter((bar) => bar.start !== null || bar.label.includes("-")); // Exclude bars where `start` is null, but keep weekly bars
+         ].filter((bar) => bar.start !== null || bar.label.includes("-"));
 
          const data = {
             labels: newCustomBars.map((bar) => bar.label),
@@ -87,7 +122,10 @@ const CustomChart = () => {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-               x: { beginAtZero: true },
+               x: {
+                  type: "category" as const,
+                  beginAtZero: true,
+               },
                y: {
                   beginAtZero: false,
                   min: 0,
@@ -123,10 +161,15 @@ const CustomChart = () => {
                   enabled: true,
                   callbacks: {
                      label: function (tooltipItem: any) {
-                        const { dataset, dataIndex } = tooltipItem;
-                        const bar = newCustomBars[dataIndex]; // Берем нужный бар
+                        const { dataIndex } = tooltipItem;
+                        console.log(dataIndex);
 
-                        return `С ${bar.start} до ${bar.end}`;
+                        const bar = newCustomBars[dataIndex];
+
+                        if (bar) {
+                           return `С ${bar.start} до ${bar.end}`;
+                        }
+                        return "";
                      },
                   },
                },
@@ -166,14 +209,50 @@ const CustomChart = () => {
    };
 
    return (
-      <div
-         style={{ position: "relative", width: "100%" }}
-         className="h-[600px] max-lg:h-[500px] max-md:h-96 max-sm:h-60"
-      >
-         <canvas ref={chartRef} />
-         {customBars.map((bar, index) => (
-            <CustomBar key={index} {...bar} supperEnd={supperEnd} />
-         ))}
+      <div className="w-full mt-5">
+         <div className="max-w-7xl w-full mx-auto px-4 py-5">
+            {isTimerFinished && !end && (
+               <p className="text-[red] text-3xl max-lg:text-2xl max-sm:text-lg text-center mb-5">
+                  Установите верное время окончания!
+               </p>
+            )}
+            <div
+               className={`flex items-center justify-between py-5 px-10 max-sm:px-4 max-sm:py-3 rounded-xl text-white ${
+                  isTimerFinished && !end ? "bg-[#c8c8c8] " : "bg-blue"
+               }`}
+            >
+               {!isFasting ? (
+                  <button
+                     onClick={handleStartFasting}
+                     className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase"
+                  >
+                     Начать ГОЛОДАНИЕ
+                  </button>
+               ) : (
+                  <button
+                     disabled={isTimerFinished && !end}
+                     onClick={handleEndFasting}
+                     className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase"
+                  >
+                     Зовершить ГОЛОДАНИЕ
+                  </button>
+               )}
+               <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">
+                  +0 баллов
+               </p>
+            </div>
+            <div className="mt-5">
+               <div
+                  style={{ position: "relative", width: "100%" }}
+                  className="h-[600px] max-lg:h-[500px] max-md:h-96 max-sm:h-60"
+               >
+                  <canvas ref={chartRef} />
+                  {customBars.map((bar, index) => (
+                     <CustomBar key={index} {...bar} supperEnd={supperEnd} />
+                  ))}
+               </div>
+            </div>
+         </div>
       </div>
    );
 };

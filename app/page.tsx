@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { FaCarrot } from "react-icons/fa";
 
 import Header from "@/components/Header";
 import Timer from "@/components/Timer";
 import TimerSettings from "@/components/TimerSettings";
-import FastingChart from "@/components/FastingChart";
 import CustomChart from "@/components/CustomChart";
 
 export default function Home() {
@@ -39,8 +37,6 @@ export default function Home() {
                <Timer />
 
                <TimerSettings />
-
-               <FastingChart />
 
                <CustomChart />
             </div>

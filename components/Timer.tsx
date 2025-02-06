@@ -34,25 +34,20 @@ const Timer = () => {
          const interval = setInterval(() => {
             const now = dayjs();
 
-            // Общее время от начала до конца
             const totalDuration = supperEnd.isBefore(start)
                ? supperEnd.add(1, "day").diff(start)
                : supperEnd.diff(start);
 
-            // Время, прошедшее с начала
             const elapsedDuration = now.isBefore(start)
                ? now.add(1, "day").diff(start)
                : now.diff(start);
 
-            // Прогресс в процентах
             const progressPercent = (elapsedDuration / totalDuration) * 100;
             setProgress(progressPercent);
 
-            // Обновляем оставшееся время
             const timeLeftDuration = dayjs.duration(elapsedDuration);
             setTimeLeft(timeLeftDuration.format("HH:mm:ss"));
 
-            // Останавливаем таймер, если текущее время больше supperEnd
             const supperEndAdjusted = supperEnd.isBefore(start)
                ? supperEnd.add(1, "day")
                : supperEnd;
@@ -73,7 +68,7 @@ const Timer = () => {
       if (!isFasting && start) {
          const now = dayjs();
          const elapsed = dayjs.duration(now.diff(start));
-         setTimeLeft(elapsed.format("HH:mm:ss")); // Фиксируем прошедшее время
+         setTimeLeft(elapsed.format("HH:mm:ss"));
       }
    }, [isFasting, start]);
 
