@@ -25,7 +25,7 @@ const Timer = () => {
    const [bonus, setBonus] = useState(0);
 
    const [mealsTime] = useAtom(mealsTimeAtom);
-   const supperEnd = dayjs(mealsTime.supperRange[1], "HH:mm"); // 14:00
+   const supperEnd = dayjs(mealsTime.supperRange[1], "HH:mm");
 
    const [progress, setProgress] = useState(0);
 

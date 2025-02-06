@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Timer from "@/components/Timer";
 import TimerSettings from "@/components/TimerSettings";
 import FastingChart from "@/components/FastingChart";
+import CustomChart from "@/components/CustomChart";
 
 export default function Home() {
    return (
@@ -27,7 +28,11 @@ export default function Home() {
                   </div>
 
                   <Button className="bg-blue text-white py-8 px-7 max-xl:py-6 max-xl:px-4 max-sm:px-3 max-sm:py-2 rounded-xl">
-                     <img src="/icons/info.svg" className="w-7 max-lg:w-5 max-lg:h-5" alt="" />
+                     <img
+                        src="/icons/info.svg"
+                        className="w-7 max-lg:w-5 max-lg:h-5"
+                        alt=""
+                     />
                   </Button>
                </div>
 
@@ -36,6 +41,8 @@ export default function Home() {
                <TimerSettings />
 
                <FastingChart />
+
+               <CustomChart />
             </div>
          </main>
       </>
