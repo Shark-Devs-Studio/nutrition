@@ -16,5 +16,7 @@ export const scheduledTimeAtom = atom({
 
 export const mealsTimeAtom = atom({
    breakfastRange: ["11:00", "20:00"],
-   supperRange: ["07:00", "22:00"],
+   supperRange: ["07:00", "04:00"],
 });
+
+export const dateAtom = atom(dayjs());

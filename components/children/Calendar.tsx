@@ -17,11 +17,12 @@ import {
    MdKeyboardArrowRight,
    MdKeyboardDoubleArrowRight,
 } from "react-icons/md";
+import { useAtom } from "jotai";
+import { dateAtom } from "@/lib/state";
+import dayjs from "dayjs";
 
-const courses = [
-   1, 2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 24, 25, 26, 27, 28, 29, 30, 31,
-];
-const trainings = [12, 14, 16, 18];
+const courses = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+const trainings = [3, 6, 8, 11, 13];
 const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
 interface CalendarProps {
@@ -35,29 +36,32 @@ const Calendar = ({
    setSelectedDate,
    onClose,
 }: CalendarProps) => {
+   const [date, setDate] = useAtom(dateAtom);
    const start = startOfMonth(selectedDate);
    const end = endOfMonth(selectedDate);
    const days = eachDayOfInterval({ start, end });
    const startDay = getDay(start) === 0 ? 6 : getDay(start) - 1;
 
-   const today = new Date();
-
    const calendarDays = days.map((day) => {
       const dayOfMonth = day.getDate();
+      console.log(selectedDate.getMonth());
+      console.log(date.month(), "js");
+
       return {
          day: dayOfMonth,
          isTraining: trainings.includes(dayOfMonth),
          isCourse: courses.includes(dayOfMonth),
          isDisabled: !courses.includes(dayOfMonth),
          isToday:
-            dayOfMonth === today.getDate() &&
-            selectedDate.getMonth() === today.getMonth() &&
-            selectedDate.getFullYear() === today.getFullYear(),
+            dayOfMonth === date.date() &&
+            selectedDate.getMonth() === date.month() &&
+            selectedDate.getFullYear() === date.year(),
       };
    });
 
    const handleDayClick = (day: Date) => {
-      setSelectedDate(day); 
+      setSelectedDate(day);
+      setDate(dayjs(day));
       onClose();
    };
 
@@ -74,13 +78,13 @@ const Calendar = ({
                <div className="">
                   <Button
                      onClick={() => setSelectedDate(subYears(selectedDate, 1))}
-                     className="text-sm py-7 px-6"
+                     className="text-sm py-7 px-6 duration-200 hover:bg-white"
                   >
                      <MdKeyboardDoubleArrowRight className="rotate-180" />
                   </Button>
                   <Button
                      onClick={() => setSelectedDate(subMonths(selectedDate, 1))}
-                     className="text-sm py-7 px-6"
+                     className="text-sm py-7 px-6 duration-200 hover:bg-white"
                   >
                      <MdKeyboardArrowRight className="rotate-180" />
                   </Button>
@@ -91,13 +95,13 @@ const Calendar = ({
                <div className="">
                   <Button
                      onClick={() => setSelectedDate(addMonths(selectedDate, 1))}
-                     className="text-sm py-7 px-6 bg-white"
+                     className="text-sm py-7 px-6 duration-200 hover:bg-white"
                   >
                      <MdKeyboardArrowRight className="" />
                   </Button>
                   <Button
                      onClick={() => setSelectedDate(addYears(selectedDate, 1))}
-                     className="text-sm py-7 px-6"
+                     className="text-sm py-7 px-6 duration-200 hover:bg-white"
                   >
                      <MdKeyboardDoubleArrowRight className="" />
                   </Button>
@@ -126,7 +130,9 @@ const Calendar = ({
                   return (
                      <div
                         key={idx}
-                        className={`gilroy-medium ${dayObj.isCourse ? "bg-white" : ""}`}
+                        className={`gilroy-medium ${
+                           dayObj.isCourse ? "bg-white" : ""
+                        }`}
                      >
                         <div
                            className={`relative px-2 py-2.5 rounded-lg cursor-pointer ${

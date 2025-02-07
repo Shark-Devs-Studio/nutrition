@@ -18,6 +18,7 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
+   dateAtom,
    fastingEndAtom,
    fastingStartAtom,
    isFastingAtom,
@@ -34,8 +35,8 @@ ChartJS.register(
    Legend,
    ChartDataLabels
 );
-
 const CustomChart = () => {
+   const [isDate, setIsDate] = useAtom(dateAtom);
    const [start, setStart] = useAtom(fastingStartAtom);
    const [end, setEnd] = useAtom(fastingEndAtom);
    const [isFasting, setIsFasting] = useAtom(isFastingAtom);
@@ -88,14 +89,59 @@ const CustomChart = () => {
          if (chartRef.current.chartInstance) {
             chartRef.current.chartInstance.destroy();
          }
+
          const newCustomBars = [
-            { label: "Пт-Вт", start: "20:22", end: "10:48", progress: 100 },
-            { label: "Вт-Ср", start: "23:00", end: "06:59", progress: 100 },
-            { label: "Ср-Чт", start: "21:00", end: "05:19", progress: 100 },
-            { label: "Чт-Пт", start: "01:11", end: "08:29", progress: 100 },
-            { label: "Пт-Сб", start: "20:00", end: "06:14", progress: 100 },
-            { label: "Сб-Вс", start: "22:00", end: "10:00", progress: 100 },
             {
+               dateStart: "02.01.2024",
+               dateEnd: "02.01.2025",
+               label: "Пт-Вт",
+               start: "20:22",
+               end: "10:48",
+               progress: 100,
+            },
+            {
+               dateStart: "02.02.2025",
+               dateEnd: "02.03.2025",
+               label: "Вт-Ср",
+               start: "23:00",
+               end: "06:59",
+               progress: 100,
+            },
+            {
+               dateStart: "02.03.2025",
+               dateEnd: "02.04.2025",
+               label: "Ср-Чт",
+               start: "21:00",
+               end: "05:19",
+               progress: 100,
+            },
+            {
+               dateStart: "02.04.2025",
+               dateEnd: "02.05.2025",
+               label: "Чт-Пт",
+               start: "01:11",
+               end: "08:29",
+               progress: 100,
+            },
+            {
+               dateStart: "02.05.2025",
+               dateEnd: "02.06.2025",
+               label: "Пт-Сб",
+               start: "20:00",
+               end: "06:14",
+               progress: 100,
+            },
+            {
+               dateStart: "02.06.2025",
+               dateEnd: "02.07.2025",
+               label: "Сб-Вс",
+               start: "22:00",
+               end: "10:00",
+               progress: 100,
+            },
+            {
+               dateStart: "02.07.2025",
+               dateEnd: "02.08.2025",
                label: "Вс-Пн",
                start: start ? dayjs(start).format("HH:mm") : null,
                end: end
@@ -216,31 +262,26 @@ const CustomChart = () => {
                   Установите верное время окончания!
                </p>
             )}
-            <div
-               className={`flex items-center justify-between py-5 px-10 max-sm:px-4 max-sm:py-3 rounded-xl text-white ${
+            <button
+               disabled={isTimerFinished && !end}
+               onClick={start ? handleEndFasting : handleStartFasting}
+               className={`w-full flex items-center justify-between py-5 px-10 max-sm:px-4 max-sm:py-3 rounded-xl text-white ${
                   isTimerFinished && !end ? "bg-[#c8c8c8] " : "bg-blue"
                }`}
             >
                {!isFasting ? (
-                  <button
-                     onClick={handleStartFasting}
-                     className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase"
-                  >
+                  <p className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
                      Начать ГОЛОДАНИЕ
-                  </button>
+                  </p>
                ) : (
-                  <button
-                     disabled={isTimerFinished && !end}
-                     onClick={handleEndFasting}
-                     className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase"
-                  >
+                  <p className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
                      Зовершить ГОЛОДАНИЕ
-                  </button>
+                  </p>
                )}
                <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">
                   +0 баллов
                </p>
-            </div>
+            </button>
             <div className="mt-5">
                <div
                   style={{ position: "relative", width: "100%" }}
@@ -248,7 +289,14 @@ const CustomChart = () => {
                >
                   <canvas ref={chartRef} />
                   {customBars.map((bar, index) => (
-                     <CustomBar key={index} {...bar} supperEnd={supperEnd} />
+                     <CustomBar
+                        key={index}
+                        index={index}
+                        {...bar}
+                        supperEnd={supperEnd}
+                        isDate={isDate}
+                        setIsDate={setIsDate}
+                     />
                   ))}
                </div>
             </div>

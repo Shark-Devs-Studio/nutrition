@@ -1,5 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
+import { useAtom } from "jotai";
+import { dateAtom } from "@/lib/state";
 
 interface CustomBarProps {
    x: number;
@@ -10,6 +12,11 @@ interface CustomBarProps {
    supperEnd: string;
    progress: number;
    label: string;
+   dateStart: string;
+   dateEnd: string;
+   isDate: dayjs.Dayjs;
+   setIsDate: (date: dayjs.Dayjs) => void;
+   index: number;
 }
 
 const CustomBar: React.FC<CustomBarProps> = ({
@@ -21,9 +28,27 @@ const CustomBar: React.FC<CustomBarProps> = ({
    supperEnd,
    progress,
    label,
+   dateStart,
+   dateEnd,
+   isDate,
+   setIsDate,
+   index,
 }) => {
+   const tooltipRef = useRef<any>(null);
    const [offsetX, setOffsetX] = useState(40);
    const [currentProgress, setCurrentProgress] = useState(progress);
+   const time = isDate.format("MM.DD.YYYY");
+   const startTime = dayjs(start, "HH:mm");
+   let endTime = dayjs(end, "HH:mm");
+   const isLastThreeBars = index >= 7 - 4;
+   console.log(index);
+
+   if (endTime.isBefore(startTime)) {
+      endTime = endTime.add(1, "day");
+   }
+
+   const durationHours = endTime.diff(startTime, "hour");
+   const durationMinutes = endTime.diff(startTime, "minute") % 60;
 
    const calculateProgress = () => {
       const currentTime = dayjs();
@@ -54,7 +79,7 @@ const CustomBar: React.FC<CustomBarProps> = ({
    useEffect(() => {
       const interval = setInterval(() => {
          setCurrentProgress(calculateProgress());
-      }, 1000);
+      }, 60000);
 
       return () => clearInterval(interval);
    }, []);
@@ -74,21 +99,41 @@ const CustomBar: React.FC<CustomBarProps> = ({
          }}
       >
          {calculatedProgress === 100 && (
-            <div className="w-20 max-lg:w-16 absolute -top-5 -right-12 max-lg:-right-10 max-sm:-right-4 z-10 group-hover:opacity-100 opacity-0 gap-3 px-2 py-1 max-lg:py-0.5 max-md:px-1 duration-300 rounded-[4px] pointer-events-none select-none bg-black/80 text-white">
+            <div
+               ref={tooltipRef}
+               className={`w-44 max-lg:w-40 max-md:w-[150px] absolute -top-5 left-1/2 ${
+                  isLastThreeBars
+                     ? "-translate-x-full opacity-0"
+                     : "translate-x-0"
+               } z-10 group-hover:opacity-100 opacity-0 gap-3 px-2 py-1 max-md:px-1 duration-300 rounded-[4px] pointer-events-none select-none bg-black/80 text-white`}
+            >
                <p className="text-xs max-lg:text-[10px] gilroy-bold lg:mb-1">
                   {label}
                </p>
-               <div className="flex flex-col gilroy-regular">
+               <div className="flex items-center gap-1 gilroy-regular">
+                  <div
+                     className="w-3 h-3 border border-white bg-blue"
+                     style={{
+                        backgroundColor:
+                           time !== dateStart ? "#4467e3" : "#63db85",
+                     }}
+                  />
                   <p className="text-xs max-lg:text-[10px] max-md:leading-3">
-                     C {start}
+                     с {dayjs(dateStart).format("DD.MM")}
                   </p>
                   <p className="text-xs max-lg:text-[10px] max-md:leading-3">
-                     до {end}
+                     по {dayjs(dateEnd).format("DD.MM")}:
+                  </p>
+                  <p className="text-xs max-lg:text-[10px] max-md:leading-3">
+                     {durationHours} ч {durationMinutes} м
                   </p>
                </div>
             </div>
          )}
-         <div className="h-full relative">
+         <div
+            className="h-full relative"
+            onClick={() => setIsDate(dayjs(dateStart))}
+         >
             <p className="pointer-events-none select-none text-sm max-sm:text-[10px] gilroy-bold absolute -top-5 left-1/2 -translate-x-1/2 text-[#4467e3]">
                {calculatedProgress === 100 ? end : ""}
             </p>
@@ -98,7 +143,7 @@ const CustomBar: React.FC<CustomBarProps> = ({
                   style={{
                      height: `${calculatedProgress}%`,
                      backgroundColor:
-                        calculatedProgress === 100 ? "#4467e3" : "#63db85",
+                        time !== dateStart ? "#4467e3" : "#63db85",
                   }}
                />
             </div>

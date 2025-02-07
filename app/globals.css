@@ -57,7 +57,14 @@
   color: #4467e3 !important;
 } */
 
-
 .text-shadow {
   text-shadow: 0px 5px 10px rgba(0, 0, 0, 0.30);
+}
+
+
+@media not all and (min-width: 1024px) {
+  .custom-bar-tooltip:nth-child(2) {
+    right: 80px !important; 
+    background-color: black !important;
+  }
 }

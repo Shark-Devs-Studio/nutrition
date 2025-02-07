@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import { IoMdMenu } from "react-icons/io";
 import Calendar from "./children/Calendar";
 import { format } from "date-fns";
+import { dateAtom } from "@/lib/state";
+import { useAtom } from "jotai";
 
 const Header = () => {
    const [showCalendar, setShowCalendar] = useState(false);
    const [selectedDate, setSelectedDate] = useState(new Date());
+   const [date] = useAtom(dateAtom);
 
    useEffect(() => {
       if (showCalendar) {
@@ -31,7 +34,11 @@ const Header = () => {
                   <span className="text-4xl max-md:text-3xl mb-2.5 max-sm:mb-1 gilroy-bold">
                      7
                   </span>
-                  <img className="h-4 max-sm:h-3.5" src="/icons/vector.svg" alt="" />
+                  <img
+                     className="h-4 max-sm:h-3.5"
+                     src="/icons/vector.svg"
+                     alt=""
+                  />
                   <span className="text-2xl max-md:text-base gilroy-medium">
                      1231200 баллов
                   </span>
@@ -48,13 +55,13 @@ const Header = () => {
                <p className="text-lg max-xl:text-base max-md:text-xs gilroy-medium absolute top-0 right-4 max-xl:-top-1 max-xl:right-1 max-md:top-0.5">
                   день
                </p>
-               <p>
+               <p className="flex items-center">
                   <span className="text-3xl max-xl:text-2xl gilroy-bold leading-3 mr-1">
-                     {format(selectedDate, "dd")}
+                     {date.date()}
                   </span>
                   |
                   <span className="text-2xl max-xl:text-xl max-md:text-base gilroy-bold ml-1">
-                     {format(selectedDate, "MM")}
+                     {date.month() + 1}
                   </span>
                </p>
             </Button>
