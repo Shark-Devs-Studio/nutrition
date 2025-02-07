@@ -53,7 +53,11 @@ const CustomBar: React.FC<CustomBarProps> = ({
    const calculateProgress = () => {
       const currentTime = dayjs();
       const startTime = dayjs(start, "HH:mm");
-      const endTime = end ? dayjs(end, "HH:mm") : dayjs(supperEnd, "HH:mm");
+      let endTime = end ? dayjs(end, "HH:mm") : dayjs(supperEnd, "HH:mm");
+
+      if (endTime.isBefore(startTime)) {
+         endTime = endTime.add(1, "day");
+      }
 
       const totalDuration = endTime.diff(startTime, "minute");
       const elapsedTime = currentTime.diff(startTime, "minute");

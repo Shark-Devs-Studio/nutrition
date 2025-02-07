@@ -221,7 +221,7 @@ export default function FloatingBarChart() {
                      onClick={handleEndFasting}
                      className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase"
                   >
-                     Зовершить ГОЛОДАНИЕ
+                     Заврешить голодание
                   </button>
                )}
                <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">
