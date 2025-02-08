@@ -41,7 +41,6 @@ const CustomBar: React.FC<CustomBarProps> = ({
    const startTime = dayjs(start, "HH:mm");
    let endTime = dayjs(end, "HH:mm");
    const isLastThreeBars = index >= 7 - 4;
-   console.log(index);
 
    if (endTime.isBefore(startTime)) {
       endTime = endTime.add(1, "day");

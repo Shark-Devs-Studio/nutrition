@@ -18,6 +18,7 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
+   bonusPointsAtom,
    dateAtom,
    fastingEndAtom,
    fastingStartAtom,
@@ -40,10 +41,11 @@ const CustomChart = () => {
    const [start, setStart] = useAtom(fastingStartAtom);
    const [end, setEnd] = useAtom(fastingEndAtom);
    const [isFasting, setIsFasting] = useAtom(isFastingAtom);
+   const [points] = useAtom(bonusPointsAtom);
    const chartRef = useRef<any>(null);
    const [customBars, setCustomBars] = useState<any[]>([]);
 
-   const [isTimerFinished, setIsTimerFinished] = useAtom(isTimerFinishedAtom);
+   const [isTimerFinished] = useAtom(isTimerFinishedAtom);
 
    const [mealsTime] = useAtom(mealsTimeAtom);
    const supperEnd = dayjs(mealsTime.supperRange[1], "HH:mm");
@@ -208,8 +210,6 @@ const CustomChart = () => {
                   callbacks: {
                      label: function (tooltipItem: any) {
                         const { dataIndex } = tooltipItem;
-                        console.log(dataIndex);
-
                         const bar = newCustomBars[dataIndex];
 
                         if (bar) {
@@ -275,11 +275,11 @@ const CustomChart = () => {
                   </p>
                ) : (
                   <p className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
-                     Завершить ГОЛОДАНИЕ
+                     Зовершить ГОЛОДАНИЕ
                   </p>
                )}
                <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">
-                  +0 баллов
+                  +{points} баллов
                </p>
             </button>
             <div className="mt-5">

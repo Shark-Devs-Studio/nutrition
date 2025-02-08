@@ -4,10 +4,12 @@ import { IoSettingsOutline, IoTimerOutline } from "react-icons/io5";
 import { Button } from "./ui/button";
 import { useAtom } from "jotai";
 import {
+   bonusPointsAtom,
    fastingEndAtom,
    fastingStartAtom,
    isFastingAtom,
    isTimerFinishedAtom,
+   scheduledTimeAtom,
 } from "@/lib/state";
 import MuiTooltip from "./children/MuiTooltip";
 import dayjs from "dayjs";
@@ -20,11 +22,14 @@ const Timer = () => {
    const [start] = useAtom(fastingStartAtom);
    const [end] = useAtom(fastingEndAtom);
    const [isFasting] = useAtom(isFastingAtom);
-   const [isTimerFinished, setIsTimerFinished] = useAtom(isTimerFinishedAtom);
-   const [timeLeft, setTimeLeft] = useState("00:00:00");
-   const [bonus, setBonus] = useState(0);
-
    const [mealsTime] = useAtom(mealsTimeAtom);
+   const [scheduledTime] = useAtom(scheduledTimeAtom);
+   const [isTimerFinished, setIsTimerFinished] = useAtom(isTimerFinishedAtom);
+   const [bonusPoints, setBonusPoints] = useAtom(bonusPointsAtom);
+   const [timeLeft, setTimeLeft] = useState("00:00:00");
+   const [points, setPoints] = useState(0);
+   const [timerPointsnts, setTimerPointsnts] = useState(0);
+
    const supperEnd = dayjs(mealsTime.supperRange[1], "HH:mm");
 
    const [progress, setProgress] = useState(0);
@@ -57,12 +62,38 @@ const Timer = () => {
                setTimeLeft(dayjs.duration(totalDuration).format("HH:mm:ss"));
                setProgress(100);
                setIsTimerFinished(true);
+               if (timerPointsnts === 0) {
+                  setTimerPointsnts(250);
+                  setBonusPoints(bonusPoints + 250);
+               }
             }
          }, 1000);
 
          return () => clearInterval(interval);
       }
-   }, [isFasting, start, supperEnd, setIsTimerFinished]);
+   }, [isFasting, start, supperEnd, isTimerFinished, setIsTimerFinished]);
+
+   useEffect(() => {
+      if (isFasting && start) {
+         const scheduledStart = dayjs(scheduledTime.startTime, "HH:mm"); // Запланированное время
+         const actualStart = dayjs(start); // Фактическое время
+
+         const diffMinutes = Math.abs(
+            scheduledStart.diff(actualStart, "minute")
+         );
+
+         if (diffMinutes <= 15) {
+            setPoints(250);
+            setBonusPoints((prev) => prev + 250);
+         } else if (diffMinutes <= 30) {
+            setPoints(200);
+            setBonusPoints((prev) => prev + 200);
+         } else {
+            setPoints(0);
+            setBonusPoints(bonusPoints + 0);
+         }
+      }
+   }, [isFasting, start, scheduledTime.startTime]);
 
    useEffect(() => {
       if (!isFasting && start) {
@@ -97,7 +128,7 @@ const Timer = () => {
             >
                <div className="flex items-center gap-2 max-sm:gap-0.5 rounded-full px-3 py-1.5 max-sm:py-1 max-sm:px-2 cursor-pointer bg-green">
                   <p className="text-xl max-md:text-base max-sm:text-sm gilroy-bold">
-                     +{bonus}
+                     +{points}
                   </p>
                   <IoTimerOutline className="text-[25px] max-sm:text-[18px]" />
                </div>
@@ -138,7 +169,7 @@ const Timer = () => {
                      title="Баллы за соблюдение длительности голодания"
                   >
                      <div className="mt-3 max-sm:mt-0 text-3xl max-md:text-2xl max-sm:text-lg text-green">
-                        +0 баллов
+                        +{timerPointsnts} баллов
                      </div>
                   </MuiTooltip>
                </div>

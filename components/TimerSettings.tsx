@@ -7,6 +7,7 @@ import {
    isFastingAtom,
    mealsTimeAtom,
    isTimerFinishedAtom,
+   bonusPointsAtom,
 } from "@/lib/state";
 import { useAtom } from "jotai";
 
@@ -16,46 +17,34 @@ const TimerSettings = () => {
    const [isFasting, setIsFasting] = useAtom(isFastingAtom);
    const [mealsTime] = useAtom(mealsTimeAtom);
    const [isTimerFinished, setIsTimerFinished] = useAtom(isTimerFinishedAtom);
+   const [points, setPoints] = useAtom(bonusPointsAtom);
 
    return (
       <div className="flex flex-col items-center justify-center gap-4 py-5">
          <div className="flex gap-10">
-            {/* Начало голодания */}
-            <div className="w-40 relative">
-               <p className="text-xl gilroy-medium">Начало | 26.08</p>
-               <CustomInput
-                  getTime={() => {}}
-                  time={fastingStart}
-                  range={mealsTime.breakfastRange}
-                  value={fastingStart || ""}
-                  disabled={false}
-                  status={false}
-               />
-               <p className="text-lg max-sm:text-sm mt-1 gilroy-regular">
-                  👍 Пн,
-                  <span className="text-black gilroy-medium">
-                     17:45 - 18:15
-                  </span>
-               </p>
-            </div>
+            <CustomInput
+               title={"Начало"}
+               getTime={() => {}}
+               circadianRhythm={"18:00"}
+               time={fastingStart}
+               range={mealsTime.breakfastRange}
+               disabled={false}
+               status={false}
+               setPoints={setPoints}
+               points={points}
+            />
 
-            <div className="w-40 relative">
-               <p className="text-xl gilroy-medium">Конец | 27.08</p>
-               <CustomInput
-                  getTime={setFastingEnd}
-                  time={fastingEnd}
-                  range={mealsTime.supperRange}
-                  value={fastingEnd || ""}
-                  disabled={!isTimerFinished}
-                  status={isTimerFinished && !fastingEnd}
-               />
-               <p className="text-lg max-sm:text-sm mt-1 gilroy-regular">
-                  👍 Пн,
-                  <span className="text-black gilroy-medium">
-                     17:45 - 18:15
-                  </span>
-               </p>
-            </div>
+            <CustomInput
+               title={"Конец"}
+               circadianRhythm={"09:00"}
+               getTime={setFastingEnd}
+               time={fastingEnd}
+               range={mealsTime.supperRange}
+               disabled={!isTimerFinished}
+               status={isTimerFinished && !fastingEnd}
+               setPoints={setPoints}
+               points={points}
+            />
          </div>
       </div>
    );
