@@ -6,94 +6,101 @@ import { useAtom } from "jotai";
 import {
    bonusPointsAtom,
    fastingEndAtom,
+   fastingHoursAtom,
    fastingStartAtom,
    isFastingAtom,
    isTimerFinishedAtom,
    scheduledTimeAtom,
+   settingsAtom,
 } from "@/lib/state";
 import MuiTooltip from "./children/MuiTooltip";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import { mealsTimeAtom } from "@/lib/state";
+import axios from "axios";
 
 dayjs.extend(duration);
 
 const Timer = () => {
-   const [start] = useAtom(fastingStartAtom);
-   const [end] = useAtom(fastingEndAtom);
+   const [settings, setSettings] = useAtom<{
+      id: number;
+      breackfastRange: string[];
+      supperRange: string[];
+   } | null>(settingsAtom);
+
+   const [start, setStart] = useAtom(fastingStartAtom);
+   const [end, setEnd] = useAtom(fastingEndAtom);
    const [isFasting] = useAtom(isFastingAtom);
-   const [mealsTime] = useAtom(mealsTimeAtom);
-   const [scheduledTime] = useAtom(scheduledTimeAtom);
+   const [fastingHours] = useAtom(fastingHoursAtom);
+   const [scheduledTime, setScheduledTime] = useAtom(scheduledTimeAtom);
    const [isTimerFinished, setIsTimerFinished] = useAtom(isTimerFinishedAtom);
    const [bonusPoints, setBonusPoints] = useAtom(bonusPointsAtom);
    const [timeLeft, setTimeLeft] = useState("00:00:00");
    const [points, setPoints] = useState(0);
-   const [timerPointsnts, setTimerPointsnts] = useState(0);
+   const [timerPoints, setTimerPoints] = useState(0);
 
-   const supperEnd = dayjs(mealsTime.supperRange[1], "HH:mm");
+   const toDay = dayjs().format("YYYY-MM-DD");
 
    const [progress, setProgress] = useState(0);
 
    useEffect(() => {
-      if (isFasting && start) {
+      if (isFasting && start && !end) {
          const interval = setInterval(() => {
             const now = dayjs();
+            const fastingEnd = start.add(fastingHours, "hour"); // Таймер должен идти вперед 16 часов
 
-            const totalDuration = supperEnd.isBefore(start)
-               ? supperEnd.add(1, "day").diff(start)
-               : supperEnd.diff(start);
-
-            const elapsedDuration = now.isBefore(start)
-               ? now.add(1, "day").diff(start)
-               : now.diff(start);
+            const elapsedDuration = now.diff(start);
+            const totalDuration = fastingEnd.diff(start);
 
             const progressPercent = (elapsedDuration / totalDuration) * 100;
             setProgress(progressPercent);
 
-            const timeLeftDuration = dayjs.duration(elapsedDuration);
-            setTimeLeft(timeLeftDuration.format("HH:mm:ss"));
+            // Теперь показываем прошедшее время с начала голодания
+            const timePassedDuration = dayjs.duration(elapsedDuration);
+            setTimeLeft(timePassedDuration.format("HH:mm:ss"));
 
-            const supperEndAdjusted = supperEnd.isBefore(start)
-               ? supperEnd.add(1, "day")
-               : supperEnd;
-
-            if (now.isAfter(supperEndAdjusted)) {
+            if (now.isAfter(fastingEnd)) {
                clearInterval(interval);
-               setTimeLeft(dayjs.duration(totalDuration).format("HH:mm:ss"));
+               setTimeLeft(`${fastingHours} часов`);
                setProgress(100);
                setIsTimerFinished(true);
-               if (timerPointsnts === 0) {
-                  setTimerPointsnts(250);
+               if (timerPoints === 0) {
+                  setTimerPoints(250);
                   setBonusPoints(bonusPoints + 250);
+
+                  axios.patch(`http://localhost:5000/users/${toDay}`, {
+                     tasksPoints: {
+                        nutritionPoints: 250,
+                        morningExrPoints: null,
+                        trainingPoints: null,
+                        stepsPoints: null,
+                        waterPoints: null,
+                        sleepPoints: null,
+                        knowledgePoints: null,
+                     },
+                  });
                }
             }
          }, 1000);
 
          return () => clearInterval(interval);
       }
-   }, [isFasting, start, supperEnd, isTimerFinished, setIsTimerFinished]);
+   }, [isFasting, start, isTimerFinished, setIsTimerFinished]);
 
    useEffect(() => {
       if (isFasting && start) {
-         const scheduledStart = dayjs(scheduledTime.startTime, "HH:mm"); // Запланированное время
+         const scheduledStart = dayjs(scheduledTime, "HH:mm"); // Запланированное время
          const actualStart = dayjs(start); // Фактическое время
 
          const diffMinutes = Math.abs(
             scheduledStart.diff(actualStart, "minute")
          );
 
-         if (diffMinutes <= 15) {
+         if (diffMinutes <= 30) {
             setPoints(250);
             setBonusPoints((prev) => prev + 250);
-         } else if (diffMinutes <= 30) {
-            setPoints(200);
-            setBonusPoints((prev) => prev + 200);
-         } else {
-            setPoints(0);
-            setBonusPoints(bonusPoints + 0);
          }
       }
-   }, [isFasting, start, scheduledTime.startTime]);
+   }, [isFasting, start, scheduledTime]);
 
    useEffect(() => {
       if (!isFasting && start) {
@@ -103,9 +110,66 @@ const Timer = () => {
       }
    }, [isFasting, start]);
 
+   useEffect(() => {
+      const toDay = dayjs().format("YYYY-MM-DD");
+      const previousDay = dayjs(toDay).subtract(1, "day").format("YYYY-MM-DD");
+
+      axios
+         .get("http://localhost:5000/users")
+         .then((res) => {
+            res.data.forEach((user: any) => {
+               if (user.id === toDay) {
+                  setStart(
+                     user.periods.fastingPeroids.newPeriodStart
+                        ? dayjs(user.periods.fastingPeroids.newPeriodStart)
+                        : null
+                  );
+                  setEnd(
+                     user.periods.fastingPeroids.previosPeriodEnd
+                        ? dayjs(user.periods.fastingPeroids.previosPeriodEnd)
+                        : null
+                  );
+               }
+
+               if (user.id === previousDay) {
+                  setScheduledTime(
+                     dayjs(user.periods.fastingPeroids.newPeriodStart).format(
+                        "HH:mm"
+                     )
+                  );
+               }
+            });
+         })
+         .catch((error) => {
+            console.error("Ошибка при получении пользователей:", error);
+         });
+
+      axios
+         .get("http://localhost:5000/settings")
+         .then((res) => {
+            setSettings(res.data[0]);
+         })
+         .catch((error) => {
+            console.error("Ошибка при получении настроек:", error);
+         });
+   }, []);
+
+   useEffect(() => {
+      if (start && end) {
+         const duration = dayjs.duration(dayjs(end).diff(dayjs(start)));
+         setTimeLeft(duration.format("HH:mm:ss"));
+      }
+   }, [start, end]);
+
    return (
       <div className="relative px-4 py-8 overflow-hidden">
-         <div className="bg-blue h-full w-full absolute -z-10 -top-40 max-sm:-top-44 left-0 scale-125 max-sm:scale-150 rounded-b-[40%]" />
+         <div
+            className={`h-full w-full absolute -z-10 -top-40 max-sm:-top-44 left-0 scale-125 max-sm:scale-150 rounded-b-[40%] ${
+               isFasting
+                  ? "bg-blue"
+                  : "bg-[url('/images/vegetables.jpg')] bg-cover brightness-50"
+            }`}
+         />
          <div className="text-white text-center">
             <h2 className="text-5xl max-xl:text-4xl max-sm:text-2xl gilroy-medium mb-1">
                Сейчас:
@@ -114,9 +178,10 @@ const Timer = () => {
                </span>
             </h2>
             <p className="text-2xl max-xl:text-xl max-sm:text-sm gilroy-regular">
-               Вы голодаете: {timeLeft.slice(0, 5)}
+               Вы голодаете:{" "}
+               {dayjs(timeLeft, "HH:mm").format("HH:mm") || "00:00"}
                <span className="text-green ml-5 max-sm:ml-2">
-                  (макс = 14 часа)
+                  (макс = {fastingHours} часа)
                </span>
             </p>
          </div>
@@ -169,7 +234,7 @@ const Timer = () => {
                      title="Баллы за соблюдение длительности голодания"
                   >
                      <div className="mt-3 max-sm:mt-0 text-3xl max-md:text-2xl max-sm:text-lg text-green">
-                        +{timerPointsnts} баллов
+                        +{timerPoints} баллов
                      </div>
                   </MuiTooltip>
                </div>
@@ -177,7 +242,7 @@ const Timer = () => {
 
             <div className="flex items-center gap-2 max-sm:gap-0.5 rounded-full px-3 py-1.5 max-sm:py-1 max-sm:px-2 bg-green">
                <p className="text-xl max-md:text-base max-sm:text-sm gilroy-bold">
-                  14/10
+                  {fastingHours}/{24 - fastingHours}
                </p>
                <IoSettingsOutline className="text-[25px] max-sm:text-[18px]" />
             </div>

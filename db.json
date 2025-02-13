@@ -1,0 +1,577 @@
+{
+   "users": [
+      {
+         "day": "0",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2025-02-11",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": "2025-02-18:36",
+               "newPeriodStart": "2025-02-12T17:20"
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "1",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2025-02-12",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "nutritionPoints": null,
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         },
+         "nutritionPoints": 250
+      },
+      {
+         "day": "2",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2025-02-13",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "3",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-07-27",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": "2024-07-27T13:24",
+               "newPeriodStart": "2024-07-27T20:05"
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "4",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-07-28",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": "2024-07-28T11:35",
+               "newPeriodStart": "2024-07-28T21:22"
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "5",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-07-29",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": "2024-07-29T11:55",
+               "newPeriodStart": "2024-07-29T20:12"
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "6",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-07-30",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": "2024-07-30T10:55",
+               "newPeriodStart": "2024-07-30T19:12"
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "7",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-07-31",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": "2024-07-31T10:55",
+               "newPeriodStart": "2024-07-31T19:12"
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "8",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-08-01",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": "2024-08-01T10:55",
+               "newPeriodStart": "2024-08-01T19:12"
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "9",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-08-02",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": "2024-08-02T07:55",
+               "newPeriodStart": null
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "10",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-08-03",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "11",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-08-04",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "12",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-08-05",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "13",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-08-06",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "14",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-08-07",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      },
+      {
+         "day": "15",
+         "courseId": 1,
+         "userId": 1,
+         "id": "2024-08-08",
+         "periods": {
+            "fastingPeroids": {
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
+            },
+            "sleepPeriods": {
+               "bedTime": null,
+               "wakeUpTime": null
+            }
+         },
+         "userInputs": {
+            "appWaterInputs": null
+         },
+         "tasksPoints": {
+            "morningExrPoints": null,
+            "trainingPoints": null,
+            "stepsPoints": null,
+            "waterPoints": null,
+            "nutritionPoints": null,
+            "sleepPoints": null,
+            "knowledgePoints": null
+         },
+         "trainingTests": {
+            "userAnswers": {
+               "trainingAnswer": null,
+               "morningExrsAnswer": null,
+               "knowledgeAnswer": null
+            }
+         }
+      }
+   ],
+   "settings": [
+      {
+         "id": "1",
+         "starvation": 14,
+         "breackfastRange": ["11:00", "20:00"],
+         "supperRange": ["07:00", "14:00"]
+      },
+      {
+         "id": "2",
+         "starvation": 16,
+         "breackfastRange": ["11:00", "20:00"],
+         "supperRange": ["05:00", "12:00"]
+      },
+      {
+         "id": "3",
+         "starvation": 18,
+         "breackfastRange": ["13:00", "22:00"],
+         "supperRange": ["05:00", "18:00"]
+      }
+   ]
+}

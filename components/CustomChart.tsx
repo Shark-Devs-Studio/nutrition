@@ -24,8 +24,9 @@ import {
    fastingStartAtom,
    isFastingAtom,
    isTimerFinishedAtom,
-   mealsTimeAtom,
+   settingsAtom,
 } from "@/lib/state";
+import axios from "axios";
 
 ChartJS.register(
    CategoryScale,
@@ -47,21 +48,67 @@ const CustomChart = () => {
 
    const [isTimerFinished] = useAtom(isTimerFinishedAtom);
 
-   const [mealsTime] = useAtom(mealsTimeAtom);
-   const supperEnd = dayjs(mealsTime.supperRange[1], "HH:mm");
+   const [settings, setSettings] = useAtom<{
+      id: number;
+      breackfastRange: string[];
+      supperRange: string[];
+   } | null>(settingsAtom);
+   const supperEnd = dayjs(settings?.supperRange[1], "HH:mm");
 
    const startTime = new Date();
    startTime.setHours(9, 0, 0, 0);
    const endTime = addMinutes(startTime, 33 * 60);
 
-   const handleStartFasting = () => {
-      setIsFasting(true);
-      setStart(dayjs());
+   const toDay = dayjs().format("YYYY-MM-DD");
+
+   const handleStartFasting = async () => {
+      try {
+         setIsFasting(true);
+         setStart(dayjs());
+
+         const toDay = dayjs().format("YYYY-MM-DD");
+
+         const patchRes = await axios.patch(
+            `http://localhost:5000/users/${toDay}`,
+            {
+               periods: {
+                  fastingPeroids: {
+                     previosPeriodEnd: null,
+                     newPeriodStart: dayjs().format("YYYY-MM-DDTHH:mm"),
+                  },
+               },
+            }
+         );
+
+         console.log("Обновлено:", patchRes.data);
+      } catch (error: any) {
+         console.error("Ошибка:", error.response?.data || error.message);
+      }
    };
 
-   const handleEndFasting = () => {
-      setIsFasting(false);
-      !isTimerFinished && setEnd(dayjs());
+   const handleEndFasting = async () => {
+      try {
+         setIsFasting(false);
+         !isTimerFinished && setEnd(dayjs());
+
+         const toDay = dayjs().format("YYYY-MM-DD");
+
+         const patchRes = await axios.patch(
+            `http://localhost:5000/users/${toDay}`,
+            {
+               periods: {
+                  fastingPeroids: {
+                     previosPeriodEnd: dayjs().format("YYYY-MM-DDTHH:mm"),
+                     newPeriodStart: dayjs(start).format("YYYY-MM-DDTHH:mm"),
+                  },
+               },
+            }
+         );
+
+         console.log("Обновлено:", patchRes.data);
+      } catch (error: any) {
+         console.error("Ошибка:", error.response?.data || error.message);
+      }
    };
 
    const customTicks = eachMinuteOfInterval(
@@ -94,56 +141,56 @@ const CustomChart = () => {
 
          const newCustomBars = [
             {
-               dateStart: "02.01.2024",
-               dateEnd: "02.01.2025",
+               dateStart: "02.07.2024",
+               dateEnd: "02.08.2025",
                label: "Пт-Вт",
                start: "20:22",
                end: "10:48",
                progress: 100,
             },
             {
-               dateStart: "02.02.2025",
-               dateEnd: "02.03.2025",
+               dateStart: "02.08.2025",
+               dateEnd: "02.09.2025",
                label: "Вт-Ср",
                start: "23:00",
                end: "06:59",
                progress: 100,
             },
             {
-               dateStart: "02.03.2025",
-               dateEnd: "02.04.2025",
+               dateStart: "02.09.2025",
+               dateEnd: "02.10.2025",
                label: "Ср-Чт",
                start: "21:00",
                end: "05:19",
                progress: 100,
             },
             {
-               dateStart: "02.04.2025",
-               dateEnd: "02.05.2025",
+               dateStart: "02.10.2025",
+               dateEnd: "02.11.2025",
                label: "Чт-Пт",
                start: "01:11",
                end: "08:29",
                progress: 100,
             },
             {
-               dateStart: "02.05.2025",
-               dateEnd: "02.06.2025",
+               dateStart: "02.11.2025",
+               dateEnd: "02.12.2025",
                label: "Пт-Сб",
                start: "20:00",
                end: "06:14",
                progress: 100,
             },
             {
-               dateStart: "02.06.2025",
-               dateEnd: "02.07.2025",
+               dateStart: "02.12.2025",
+               dateEnd: "02.13.2025",
                label: "Сб-Вс",
                start: "22:00",
                end: "10:00",
                progress: 100,
             },
             {
-               dateStart: "02.07.2025",
-               dateEnd: "02.08.2025",
+               dateStart: "02.13.2025",
+               dateEnd: "02.14.2025",
                label: "Вс-Пн",
                start: start ? dayjs(start).format("HH:mm") : null,
                end: end
@@ -230,7 +277,7 @@ const CustomChart = () => {
 
          chartRef.current.chartInstance = myChart;
       }
-   }, [start, end, isFasting, mealsTime]);
+   }, [start, end, isFasting, settings]);
 
    const updateCustomBars = (chart: any, bars: any[]) => {
       const updatedBars = bars.map((bar) => {
@@ -269,7 +316,7 @@ const CustomChart = () => {
                   isTimerFinished && !end ? "bg-[#c8c8c8] " : "bg-blue"
                }`}
             >
-               {!isFasting ? (
+               {!isFasting && !end ? (
                   <p className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
                      Начать ГОЛОДАНИЕ
                   </p>

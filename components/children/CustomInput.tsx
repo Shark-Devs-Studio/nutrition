@@ -12,13 +12,14 @@ import dayjs from "dayjs";
 interface Props {
    title: string;
    time: dayjs.Dayjs | null;
-   range: string[];
+   range: string[] | undefined;
    disabled: boolean;
    getTime: (time: any) => void;
    status: boolean;
    circadianRhythm: string;
    setPoints?: (points: any) => void;
    points: number;
+   placeholder: dayjs.Dayjs | null;
 }
 
 const CustomInput: React.FC<Props> = ({
@@ -31,6 +32,7 @@ const CustomInput: React.FC<Props> = ({
    circadianRhythm,
    setPoints,
    points,
+   placeholder,
 }) => {
    const hasAwardedPoints = useRef(false); // Флаг, начислялись ли уже баллы
 
@@ -54,7 +56,7 @@ const CustomInput: React.FC<Props> = ({
                         onChange={(e) => getTime(dayjs(e))}
                         disabled={disabled}
                         ampm={false}
-                        value={time || null}
+                        value={time ? time : placeholder}
                         viewRenderers={{
                            hours: renderTimeViewClock,
                            minutes: renderTimeViewClock,
@@ -92,7 +94,11 @@ const CustomInput: React.FC<Props> = ({
                            "& .MuiOutlinedInput-root": {
                               borderRadius: "12px",
                               fontSize: "20px",
-                              color: time ? "#63db85" : "#4467e3",
+                              color: status
+                                 ? "red"
+                                 : time
+                                 ? "#63db85"
+                                 : "#4467e3",
                               "& fieldset": {
                                  borderColor: status
                                     ? "red"
@@ -101,7 +107,7 @@ const CustomInput: React.FC<Props> = ({
                                     : "#4467e3",
                               },
                               "&:hover fieldset": {
-                                 borderColor: status ? "red" : "#4467e3",
+                                 borderColor: status ? "red" : "#63db85",
                               },
                               "&.Mui-focused fieldset": {
                                  borderColor: status ? "red" : "#63db85",

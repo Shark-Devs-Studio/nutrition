@@ -5,7 +5,7 @@ import Timer from "@/components/Timer";
 import TimerSettings from "@/components/TimerSettings";
 import CustomChart from "@/components/CustomChart";
 
-export default function Home() {
+export default async function Home() {
    return (
       <>
          <Header />
