@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useAtom, WritableAtom } from "jotai";
+import React, { useEffect, useRef, useState } from "react";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -8,46 +7,70 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { TextField } from "@mui/material";
 import dayjs from "dayjs";
+import "dayjs/locale/ru";
+
+dayjs.locale("ru");
 
 interface Props {
    title: string;
    time: dayjs.Dayjs | null;
-   range: string[] | undefined;
+   timeUser: string;
    disabled: boolean;
    getTime: (time: any) => void;
    status: boolean;
-   circadianRhythm: string;
    setPoints?: (points: any) => void;
    points: number;
    placeholder: dayjs.Dayjs | null;
+   window: number;
+   week: any;
 }
 
 const CustomInput: React.FC<Props> = ({
    title,
-   range,
+   timeUser,
    time,
    disabled,
    getTime,
    status,
-   circadianRhythm,
    setPoints,
    points,
    placeholder,
+   window,
+   week,
 }) => {
-   const hasAwardedPoints = useRef(false); // Флаг, начислялись ли уже баллы
+   const hasAwardedPoints = useRef(false);
+   const userTime = dayjs(timeUser, "HH:mm");
+   const [formattedTime, setFormattedTime] = useState<string | null>(null);
 
    useEffect(() => {
       if (time && setPoints && !hasAwardedPoints.current) {
-         setPoints((prev: number) => prev + 100);
-         hasAwardedPoints.current = true; // Устанавливаем флаг, чтобы больше не начислять баллы
+         const userTime = dayjs(`2025-01-21T${timeUser}`);
+
+         const selectedMinutes = time.hour() * 60 + time.minute();
+         const userMinutes = userTime.hour() * 60 + userTime.minute();
+
+         if (
+            selectedMinutes >= userMinutes - window / 2 &&
+            selectedMinutes <= userMinutes + window / 2
+         ) {
+            setPoints((prev: number) => prev + 100);
+            hasAwardedPoints.current = true;
+         }
       }
-   }, [time, setPoints]);
+   }, [time, setPoints, timeUser, window]);
+
+   useEffect(() => {
+      const startTime = userTime.subtract(window / 2, "minute").format("HH:mm");
+      const endTime = userTime.add(window / 2, "minute").format("HH:mm");
+
+      setFormattedTime(`${startTime}-${endTime}`);
+   }, [userTime, window]);
 
    return (
       <>
          <div className="w-40 relative">
             <p className="text-xl gilroy-medium">
-               {title} | {time ? dayjs(time).format("DD:MM") : ""}
+               {title} | {time ? dayjs(time).format("DD.MM") : ""}
             </p>
             <div className="relative gilroy-medium">
                <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -64,7 +87,9 @@ const CustomInput: React.FC<Props> = ({
                         }}
                         slotProps={{
                            textField: {
-                              helperText: time ? "+100" : "",
+                              helperText: hasAwardedPoints.current
+                                 ? "+100"
+                                 : "",
                            } as Partial<React.ComponentProps<typeof TextField>>,
                         }}
                         sx={{
@@ -107,7 +132,11 @@ const CustomInput: React.FC<Props> = ({
                                     : "#4467e3",
                               },
                               "&:hover fieldset": {
-                                 borderColor: status ? "red" : "#63db85",
+                                 borderColor: status
+                                    ? "red"
+                                    : disabled
+                                    ? "none"
+                                    : "#63db85",
                               },
                               "&.Mui-focused fieldset": {
                                  borderColor: status ? "red" : "#63db85",
@@ -122,8 +151,10 @@ const CustomInput: React.FC<Props> = ({
                </LocalizationProvider>
             </div>
             <p className="text-lg max-sm:text-sm mt-1 gilroy-regular">
-               👍 Пн,
-               <span className="text-black gilroy-medium">17:45 - 18:15</span>
+               👍 <span className="capitalize">{week}</span>,
+               <span className="text-black gilroy-medium ml-1">
+                  {formattedTime}
+               </span>
             </p>
          </div>
       </>

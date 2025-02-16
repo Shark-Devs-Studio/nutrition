@@ -7,18 +7,15 @@ import {
    isFastingAtom,
    isTimerFinishedAtom,
    bonusPointsAtom,
-   settingsAtom,
+   fastingHoursAtom,
 } from "@/lib/state";
 import { useAtom } from "jotai";
 import axios from "axios";
 import dayjs from "dayjs";
 
 const TimerSettings = () => {
-   const [settings, setSettings] = useAtom<{
-      id: number;
-      breackfastRange: string[];
-      supperRange: string[];
-   } | null>(settingsAtom);
+   const [fastingHours] = useAtom(fastingHoursAtom);
+
    const [fastingStart, setFastingStart] = useAtom(fastingStartAtom);
    const [fastingEnd, setFastingEnd] = useAtom(fastingEndAtom);
    const [isFasting, setIsFasting] = useAtom(isFastingAtom);
@@ -47,26 +44,28 @@ const TimerSettings = () => {
                placeholder={InpPlaceholderStart}
                title={"Начало"}
                getTime={() => {}}
-               circadianRhythm={"18:00"}
                time={fastingStart}
-               range={settings?.breackfastRange}
+               timeUser={fastingHours[0]?.startTimeUser}
+               window={fastingHours[0]?.durationWindow}
                disabled={false}
                status={false}
                setPoints={setPoints}
                points={points}
+               week={dayjs().format("dd")}
             />
 
             <CustomInput
                placeholder={InpPlaceholderEnd}
                title={"Конец"}
-               circadianRhythm={"09:00"}
                getTime={setFastingEnd}
                time={fastingEnd}
-               range={settings?.supperRange}
+               timeUser={fastingHours[0]?.endTimeUser}
+               window={fastingHours[0]?.durationWindow}
                disabled={!isTimerFinished && !fastingEnd}
                status={isTimerFinished && !fastingEnd}
                setPoints={setPoints}
                points={points}
+               week={dayjs().add(1, "day").format("dd")}
             />
          </div>
       </div>

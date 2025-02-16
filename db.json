@@ -70,12 +70,8 @@
          "id": "2025-02-13",
          "periods": {
             "fastingPeroids": {
-               "previosPeriodEnd": null,
-               "newPeriodStart": null
-            },
-            "sleepPeriods": {
-               "bedTime": null,
-               "wakeUpTime": null
+               "previosPeriodEnd": "2025-02-13T22:30",
+               "newPeriodStart": "2025-02-13T18:30"
             }
          },
          "userInputs": {
@@ -102,26 +98,22 @@
          "day": "3",
          "courseId": 1,
          "userId": 1,
-         "id": "2024-07-27",
+         "id": "2025-02-14",
          "periods": {
             "fastingPeroids": {
-               "previosPeriodEnd": "2024-07-27T13:24",
-               "newPeriodStart": "2024-07-27T20:05"
-            },
-            "sleepPeriods": {
-               "bedTime": null,
-               "wakeUpTime": null
+               "previosPeriodEnd": "2025-02-14T23:50",
+               "newPeriodStart": "2025-02-14T18:10"
             }
          },
          "userInputs": {
             "appWaterInputs": null
          },
          "tasksPoints": {
+            "nutritionPoints": 250,
             "morningExrPoints": null,
             "trainingPoints": null,
             "stepsPoints": null,
             "waterPoints": null,
-            "nutritionPoints": null,
             "sleepPoints": null,
             "knowledgePoints": null
          },
@@ -137,15 +129,11 @@
          "day": "4",
          "courseId": 1,
          "userId": 1,
-         "id": "2024-07-28",
+         "id": "2025-02-15",
          "periods": {
             "fastingPeroids": {
-               "previosPeriodEnd": "2024-07-28T11:35",
-               "newPeriodStart": "2024-07-28T21:22"
-            },
-            "sleepPeriods": {
-               "bedTime": null,
-               "wakeUpTime": null
+               "previosPeriodEnd": "2025-02-15T08:00",
+               "newPeriodStart": "2025-02-15T01:00"
             }
          },
          "userInputs": {
@@ -172,7 +160,7 @@
          "day": "5",
          "courseId": 1,
          "userId": 1,
-         "id": "2024-07-29",
+         "id": "2025-02-16",
          "periods": {
             "fastingPeroids": {
                "previosPeriodEnd": "2024-07-29T11:55",
@@ -207,11 +195,11 @@
          "day": "6",
          "courseId": 1,
          "userId": 1,
-         "id": "2024-07-30",
+         "id": "2025-02-17",
          "periods": {
             "fastingPeroids": {
-               "previosPeriodEnd": "2024-07-30T10:55",
-               "newPeriodStart": "2024-07-30T19:12"
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
             },
             "sleepPeriods": {
                "bedTime": null,
@@ -242,11 +230,11 @@
          "day": "7",
          "courseId": 1,
          "userId": 1,
-         "id": "2024-07-31",
+         "id": "2025-02-18",
          "periods": {
             "fastingPeroids": {
-               "previosPeriodEnd": "2024-07-31T10:55",
-               "newPeriodStart": "2024-07-31T19:12"
+               "previosPeriodEnd": null,
+               "newPeriodStart": null
             },
             "sleepPeriods": {
                "bedTime": null,
@@ -522,7 +510,7 @@
          "day": "15",
          "courseId": 1,
          "userId": 1,
-         "id": "2024-08-08",
+         "id": "2025-08-08",
          "periods": {
             "fastingPeroids": {
                "previosPeriodEnd": null,
@@ -554,24 +542,36 @@
          }
       }
    ],
-   "settings": [
+   "intervals": [
       {
          "id": "1",
          "starvation": 14,
+         "startTimeUser": "18:00",
+         "endTimeUser": "08:00",
          "breackfastRange": ["11:00", "20:00"],
-         "supperRange": ["07:00", "14:00"]
+         "supperRange": ["07:00", "14:00"],
+         "durationWindow": 30,
+         "isActive": true
       },
       {
          "id": "2",
          "starvation": 16,
+         "startTimeUser": "18:00",
+         "endTimeUser": "10:00",
          "breackfastRange": ["11:00", "20:00"],
-         "supperRange": ["05:00", "12:00"]
+         "supperRange": ["05:00", "12:00"],
+         "durationWindow": 30,
+         "isActive": false
       },
       {
          "id": "3",
          "starvation": 18,
+         "startTimeUser": "18:00",
+         "endTimeUser": "12:00",
          "breackfastRange": ["13:00", "22:00"],
-         "supperRange": ["05:00", "18:00"]
+         "supperRange": ["05:00", "18:00"],
+         "durationWindow": 30,
+         "isActive": false
       }
    ]
 }

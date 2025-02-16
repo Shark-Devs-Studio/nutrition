@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import dayjs from "dayjs";
 import { addMinutes, eachMinuteOfInterval, format } from "date-fns";
@@ -21,10 +21,10 @@ import {
    bonusPointsAtom,
    dateAtom,
    fastingEndAtom,
+   fastingHoursAtom,
    fastingStartAtom,
    isFastingAtom,
    isTimerFinishedAtom,
-   settingsAtom,
 } from "@/lib/state";
 import axios from "axios";
 
@@ -38,6 +38,8 @@ ChartJS.register(
    ChartDataLabels
 );
 const CustomChart = () => {
+   const [fastingHours] = useAtom(fastingHoursAtom);
+
    const [isDate, setIsDate] = useAtom(dateAtom);
    const [start, setStart] = useAtom(fastingStartAtom);
    const [end, setEnd] = useAtom(fastingEndAtom);
@@ -48,12 +50,10 @@ const CustomChart = () => {
 
    const [isTimerFinished] = useAtom(isTimerFinishedAtom);
 
-   const [settings, setSettings] = useAtom<{
-      id: number;
-      breackfastRange: string[];
-      supperRange: string[];
-   } | null>(settingsAtom);
-   const supperEnd = dayjs(settings?.supperRange[1], "HH:mm");
+   // const supperEnd = dayjs(fastingHours[0].supperRange[1], "HH:mm");
+   const supperEnd = start
+      ? dayjs(start).add(fastingHours[0].starvation, "hour").format("HH:mm")
+      : null;
 
    const startTime = new Date();
    startTime.setHours(9, 0, 0, 0);
@@ -66,15 +66,17 @@ const CustomChart = () => {
          setIsFasting(true);
          setStart(dayjs());
 
-         const toDay = dayjs().format("YYYY-MM-DD");
-
-         const patchRes = await axios.patch(
-            `http://localhost:5000/users/${toDay}`,
+         const patchRes = await axios.put(
+            `${process.env.NEXT_PUBLIC_MOCK_API_SECRET}/users/${toDay}`,
             {
                periods: {
                   fastingPeroids: {
                      previosPeriodEnd: null,
                      newPeriodStart: dayjs().format("YYYY-MM-DDTHH:mm"),
+                  },
+                  sleepPeriods: {
+                     bedTime: null,
+                     wakeUpTime: null,
                   },
                },
             }
@@ -89,17 +91,19 @@ const CustomChart = () => {
    const handleEndFasting = async () => {
       try {
          setIsFasting(false);
-         !isTimerFinished && setEnd(dayjs());
+         setEnd(dayjs());
 
-         const toDay = dayjs().format("YYYY-MM-DD");
-
-         const patchRes = await axios.patch(
-            `http://localhost:5000/users/${toDay}`,
+         const patchRes = await axios.put(
+            `${process.env.NEXT_PUBLIC_MOCK_API_SECRET}/users/${toDay}`,
             {
                periods: {
                   fastingPeroids: {
                      previosPeriodEnd: dayjs().format("YYYY-MM-DDTHH:mm"),
                      newPeriodStart: dayjs(start).format("YYYY-MM-DDTHH:mm"),
+                  },
+                  sleepPeriods: {
+                     bedTime: null,
+                     wakeUpTime: null,
                   },
                },
             }
@@ -110,6 +114,10 @@ const CustomChart = () => {
          console.error("Ошибка:", error.response?.data || error.message);
       }
    };
+
+   useEffect(() => {
+      setIsFasting(start && end ? false : true);
+   }, [start, end, isFasting]);
 
    const customTicks = eachMinuteOfInterval(
       { start: startTime, end: endTime },
@@ -193,9 +201,7 @@ const CustomChart = () => {
                dateEnd: "02.14.2025",
                label: "Вс-Пн",
                start: start ? dayjs(start).format("HH:mm") : null,
-               end: end
-                  ? dayjs(end).format("HH:mm")
-                  : supperEnd.format("HH:mm"),
+               end: end ? dayjs(end).format("HH:mm") : supperEnd,
                progress: end ? 100 : 50,
             },
          ].filter((bar) => bar.start !== null || bar.label.includes("-"));
@@ -277,7 +283,7 @@ const CustomChart = () => {
 
          chartRef.current.chartInstance = myChart;
       }
-   }, [start, end, isFasting, settings]);
+   }, [start, end, isFasting]);
 
    const updateCustomBars = (chart: any, bars: any[]) => {
       const updatedBars = bars.map((bar) => {
@@ -316,13 +322,13 @@ const CustomChart = () => {
                   isTimerFinished && !end ? "bg-[#c8c8c8] " : "bg-blue"
                }`}
             >
-               {!isFasting && !end ? (
+               {!start ? (
                   <p className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
                      Начать ГОЛОДАНИЕ
                   </p>
                ) : (
                   <p className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
-                     Зовершить ГОЛОДАНИЕ
+                     Завершить ГОЛОДАНИЕ
                   </p>
                )}
                <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">

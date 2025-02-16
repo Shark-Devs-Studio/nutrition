@@ -44,8 +44,6 @@ const Calendar = ({
 
    const calendarDays = days.map((day) => {
       const dayOfMonth = day.getDate();
-      console.log(selectedDate.getMonth());
-      console.log(date.month(), "js");
 
       return {
          day: dayOfMonth,
