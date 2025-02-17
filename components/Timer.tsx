@@ -11,7 +11,9 @@ import {
    isEatingAtom,
    isFastingAtom,
    isTimerFinishedAtom,
+   MOCK_API,
    scheduledTimeAtom,
+   userCourseAtom,
 } from "@/lib/state";
 import MuiTooltip from "./children/MuiTooltip";
 import dayjs from "dayjs";
@@ -22,6 +24,7 @@ import Link from "next/link";
 dayjs.extend(duration);
 
 const Timer = () => {
+   const [userCourse, setUserCourse] = useAtom(userCourseAtom);
    const [start, setStart] = useAtom(fastingStartAtom);
    const [isEatingTime, setIsEatingTime] = useState(false);
    const [end, setEnd] = useAtom(fastingEndAtom);
@@ -35,7 +38,6 @@ const Timer = () => {
    const [eatingTime, setEatingTime] = useState("00:00:00");
    const [points, setPoints] = useState(0);
    const [timerPoints, setTimerPoints] = useState(0);
-   const [, set] = useState();
    const [eatingDuration, setEatingDuration] = useState(
       24 - fastingHours[0]?.starvation
    );
@@ -97,20 +99,17 @@ const Timer = () => {
                   setTimerPoints(250);
                   setBonusPoints(bonusPoints + 250);
 
-                  axios.patch(
-                     `${process.env.NEXT_PUBLIC_MOCK_API_SECRET}/users/${toDay}`,
-                     {
-                        tasksPoints: {
-                           nutritionPoints: 250,
-                           morningExrPoints: null,
-                           trainingPoints: null,
-                           stepsPoints: null,
-                           waterPoints: null,
-                           sleepPoints: null,
-                           knowledgePoints: null,
-                        },
-                     }
-                  );
+                  axios.patch(`${MOCK_API}/users/${toDay}`, {
+                     tasksPoints: {
+                        nutritionPoints: 250,
+                        morningExrPoints: null,
+                        trainingPoints: null,
+                        stepsPoints: null,
+                        waterPoints: null,
+                        sleepPoints: null,
+                        knowledgePoints: null,
+                     },
+                  });
                }
             }
          }, 1000);
@@ -148,9 +147,10 @@ const Timer = () => {
       const previousDay = dayjs(toDay).subtract(1, "day").format("YYYY-MM-DD");
 
       axios
-         .get(`${process.env.NEXT_PUBLIC_MOCK_API_SECRET}/users`)
+         .get(`${MOCK_API}/users`)
          .then((res) => {
             if (res.status === 200 || res.status === 201) {
+               setUserCourse(res.data);
                res.data.forEach((user: any) => {
                   if (user.id === toDay) {
                      setStart(
@@ -188,9 +188,10 @@ const Timer = () => {
    }, [start, end]);
 
    useEffect(() => {
-      const time = start
-         ? dayjs(timeLeft, "HH:mm").format("HH:mm")
-         : dayjs(eatingTime, "HH:mm").format("HH:mm");
+      const time =
+         start && !end
+            ? dayjs(timeLeft, "HH:mm").format("HH:mm")
+            : dayjs(eatingTime, "HH:mm").format("HH:mm");
 
       setFormattedTime(time);
    }, [start, timeLeft, eatingTime]);

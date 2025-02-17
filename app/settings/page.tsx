@@ -4,11 +4,10 @@ import IntervalSettings from "@/components/IntervalSettings";
 import Image from "next/image";
 import { FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
+import { MOCK_API } from "@/lib/state";
 
 const page = async () => {
-   const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_MOCK_API_SECRET}/settings`
-   );
+   const res = await axios.get(`${MOCK_API}/settings`);
    const settings = res.data;
 
    return (

@@ -25,6 +25,7 @@ import {
    fastingStartAtom,
    isFastingAtom,
    isTimerFinishedAtom,
+   MOCK_API,
 } from "@/lib/state";
 import axios from "axios";
 
@@ -67,7 +68,7 @@ const CustomChart = () => {
          setStart(dayjs());
 
          const patchRes = await axios.put(
-            `${process.env.NEXT_PUBLIC_MOCK_API_SECRET}/users/${toDay}`,
+            `${MOCK_API}/users/${toDay}`,
             {
                periods: {
                   fastingPeroids: {
@@ -94,7 +95,7 @@ const CustomChart = () => {
          setEnd(dayjs());
 
          const patchRes = await axios.put(
-            `${process.env.NEXT_PUBLIC_MOCK_API_SECRET}/users/${toDay}`,
+            `${MOCK_API}/users/${toDay}`,
             {
                periods: {
                   fastingPeroids: {
@@ -125,7 +126,6 @@ const CustomChart = () => {
    ).map((date) => format(date, "HH:mm"));
 
    const timeToIndex = (time: string) => customTicks.indexOf(time);
-
    const parseTime = (time: string | null) => {
       if (!time) return customTicks.length - 1;
 
@@ -315,26 +315,37 @@ const CustomChart = () => {
                   Установите верное время окончания!
                </p>
             )}
-            <button
-               disabled={isTimerFinished && !end}
-               onClick={start ? handleEndFasting : handleStartFasting}
-               className={`w-full flex items-center justify-between py-5 px-10 max-sm:px-4 max-sm:py-3 rounded-xl text-white ${
-                  isTimerFinished && !end ? "bg-[#c8c8c8] " : "bg-blue"
-               }`}
-            >
-               {!start ? (
-                  <p className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
-                     Начать ГОЛОДАНИЕ
-                  </p>
-               ) : (
+            {start && !end ? (
+               <button
+                  onClick={handleEndFasting}
+                  className={`w-full flex items-center justify-between py-5 px-10 max-sm:px-4 max-sm:py-3 rounded-xl text-white ${
+                     isTimerFinished && !end ? "bg-[#c8c8c8] " : "bg-blue"
+                  }`}
+                  disabled={isTimerFinished && !end}
+               >
                   <p className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
                      Завершить ГОЛОДАНИЕ
                   </p>
-               )}
-               <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">
-                  +{points} баллов
-               </p>
-            </button>
+                  <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">
+                     +{points} баллов
+                  </p>
+               </button>
+            ) : (
+               <button
+                  onClick={handleStartFasting}
+                  className={`w-full flex items-center justify-between py-5 px-10 max-sm:px-4 max-sm:py-3 rounded-xl text-white ${
+                     start && end ? "bg-[#c8c8c8] " : "bg-blue"
+                  }`}
+                  disabled={start !== null && end !== null}
+               >
+                  <p className="text-3xl max-md:text-2xl max-sm:text-base gilroy-bold uppercase">
+                     Начать ГОЛОДАНИЕ
+                  </p>
+                  <p className="text-3xl max-sm:text-lg gilroy-extraBold text-shadow text-green">
+                     +{points} баллов
+                  </p>
+               </button>
+            )}
             <div className="mt-5">
                <div
                   style={{ position: "relative", width: "100%" }}

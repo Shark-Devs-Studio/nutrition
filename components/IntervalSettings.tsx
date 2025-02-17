@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { fastingHoursAtom } from "@/lib/state";
+import { fastingHoursAtom, MOCK_API } from "@/lib/state";
 import { useAtom } from "jotai";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -20,6 +20,7 @@ import {
 
 const IntervalSettings = ({ settings }: any) => {
    const [fastingHours, setFastingHoursAtom] = useAtom(fastingHoursAtom);
+   const [loading, setLoading] = useState(false);
    const [interval, setInterval] = useState(fastingHours[0]?.id);
    const selectedInterval =
       settings.find((i: any) => i.id === interval) || settings[0];
@@ -44,25 +45,35 @@ const IntervalSettings = ({ settings }: any) => {
    };
 
    const onChange = async () => {
+      setLoading(true);
       try {
-         await axios.put(
-            `${process.env.NEXT_PUBLIC_MOCK_API_SECRET}/settings/${interval}`,
-            {
-               startTimeUser: startTime.format("HH:mm"),
-               endTimeUser: endTime.format("HH:mm"),
-               isActive: true,
-            }
-         );
-         settings
-            .filter((item: any) => item.id !== interval)
-            .map((item: any) =>
-               axios.put(
-                  `${process.env.NEXT_PUBLIC_MOCK_API_SECRET}/settings/${item.id}`,
-                  { isActive: false }
+         await axios.put(`${MOCK_API}/settings/${interval}`, {
+            startTimeUser: startTime.format("HH:mm"),
+            endTimeUser: endTime.format("HH:mm"),
+            isActive: true,
+         });
+
+         await Promise.all(
+            settings
+               .filter((item: any) => item.id !== interval)
+               .map((item: any) =>
+                  axios.put(`${MOCK_API}/settings/${item.id}`, {
+                     isActive: false,
+                  })
                )
-            );
+         );
+
+         const updatedActiveSetting = {
+            ...settings.find((item: any) => item.id === interval),
+            startTimeUser: startTime.format("HH:mm"),
+            endTimeUser: endTime.format("HH:mm"),
+            isActive: true,
+         };
+         setFastingHoursAtom([updatedActiveSetting]);
       } catch (err) {
          console.error(err);
+      } finally {
+         setLoading(false);
       }
    };
 
@@ -218,10 +229,11 @@ const IntervalSettings = ({ settings }: any) => {
 
                <div className="sm:mx-auto mt-10 max-sm:w-full">
                   <button
+                     disabled={loading}
                      onClick={onChange}
                      className="bg-blue text-white max-sm:w-full text-2xl max-md:text-xl gilroy-medium uppercase py-4 px-20 rounded-xl"
                   >
-                     Сохранить
+                     {loading ? "Сохранение..." : "Сохранить"}
                   </button>
                </div>
             </div>
