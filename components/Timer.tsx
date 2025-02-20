@@ -288,7 +288,7 @@ const Timer = () => {
             )}
          </div>
          {isEatingTime && (
-            <p className="text-center">Новый голодание начнется:</p>
+            <p className="text-center">Новое голодание начнется:</p>
          )}
       </>
    );
