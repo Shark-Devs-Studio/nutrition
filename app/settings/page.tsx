@@ -9,7 +9,7 @@ import { MOCK_API } from "@/lib/state";
 const page = async () => {
    const res = await axios.get(`${MOCK_API}/settings`);
    const settings = res.data;
-
+   
    return (
       <main>
          <div className="custom-container mt-10 max-md:mt-5">

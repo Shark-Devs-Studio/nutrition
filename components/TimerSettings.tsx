@@ -61,7 +61,7 @@ const TimerSettings = () => {
                time={fastingEnd}
                timeUser={fastingHours[0]?.endTimeUser}
                window={fastingHours[0]?.durationWindow}
-               disabled={!isTimerFinished && !fastingEnd}
+               disabled={!isTimerFinished && !fastingStart}
                status={isTimerFinished && !fastingEnd}
                setPoints={setPoints}
                points={points}

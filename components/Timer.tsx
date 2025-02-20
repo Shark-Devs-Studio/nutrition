@@ -26,7 +26,7 @@ dayjs.extend(duration);
 const Timer = () => {
    const [userCourse, setUserCourse] = useAtom(userCourseAtom);
    const [start, setStart] = useAtom(fastingStartAtom);
-   const [isEatingTime, setIsEatingTime] = useState(false);
+   const [isEatingTime, setIsEatingTime] = useState(true);
    const [end, setEnd] = useAtom(fastingEndAtom);
    const [isFasting] = useAtom(isFastingAtom);
    const [isEating, setIsEating] = useAtom(isEatingAtom);
@@ -49,6 +49,7 @@ const Timer = () => {
 
    useEffect(() => {
       if (!isFasting && end) {
+         setIsEatingTime(true);
          const interval = setInterval(() => {
             const now = dayjs();
             const eatingTime = end.add(eatingDuration, "hour");
@@ -64,7 +65,6 @@ const Timer = () => {
 
             if (now.isAfter(eatingTime)) {
                clearInterval(interval);
-               setIsEatingTime(true);
                // setEatingTime(`${eatingDuration} часов`);
                setProgress(100);
             }
@@ -76,6 +76,7 @@ const Timer = () => {
 
    useEffect(() => {
       if (isFasting && start && !end) {
+         setIsEatingTime(false);
          const interval = setInterval(() => {
             const now = dayjs();
             const fastingEnd = start.add(fastingHours[0]?.starvation, "hour"); // Таймер должен идти вперед 16 часов
@@ -99,7 +100,7 @@ const Timer = () => {
                   setTimerPoints(250);
                   setBonusPoints(bonusPoints + 250);
 
-                  axios.patch(`${MOCK_API}/users/${toDay}`, {
+                  axios.patch(`${MOCK_API}/userCourseDaysData/${toDay}`, {
                      tasksPoints: {
                         nutritionPoints: 250,
                         morningExrPoints: null,
@@ -146,38 +147,26 @@ const Timer = () => {
       const toDay = dayjs().format("YYYY-MM-DD");
       const previousDay = dayjs(toDay).subtract(1, "day").format("YYYY-MM-DD");
 
-      axios
-         .get(`${MOCK_API}/users`)
-         .then((res) => {
-            if (res.status === 200 || res.status === 201) {
-               setUserCourse(res.data);
-               res.data.forEach((user: any) => {
-                  if (user.id === toDay) {
-                     setStart(
-                        user.periods.fastingPeroids.newPeriodStart
-                           ? dayjs(user.periods.fastingPeroids.newPeriodStart)
-                           : null
-                     );
-                     setEnd(
-                        user.periods.fastingPeroids.previosPeriodEnd
-                           ? dayjs(user.periods.fastingPeroids.previosPeriodEnd)
-                           : null
-                     );
-                  }
+      userCourse.forEach((user: any) => {
+         if (user.id === toDay) {
+            setStart(
+               user.periods.fastingPeroids.newPeriodStart
+                  ? dayjs(user.periods.fastingPeroids.newPeriodStart)
+                  : null
+            );
+            setEnd(
+               user.periods.fastingPeroids.previosPeriodEnd
+                  ? dayjs(user.periods.fastingPeroids.previosPeriodEnd)
+                  : null
+            );
+         }
 
-                  if (user.id === previousDay) {
-                     setScheduledTime(
-                        dayjs(
-                           user.periods.fastingPeroids.newPeriodStart
-                        ).format("HH:mm")
-                     );
-                  }
-               });
-            }
-         })
-         .catch((error) => {
-            console.error("Ошибка при получении пользователей:", error);
-         });
+         if (user.id === previousDay) {
+            setScheduledTime(
+               dayjs(user.periods.fastingPeroids.newPeriodStart).format("HH:mm")
+            );
+         }
+      });
    }, []);
 
    useEffect(() => {
@@ -224,7 +213,7 @@ const Timer = () => {
                </p>
             </div>
 
-            <div className="flex gap-10 justify-center items-center my-10 text-white">
+            <div className="flex gap-10 justify-center items-center mb-24 mt-10 text-white">
                <MuiTooltip
                   placement="top-start"
                   title="Баллы за совпадение времени начала голодания с предыдущим днем ±30 мин"
@@ -297,21 +286,9 @@ const Timer = () => {
                   Ваше время голодания закончилось!
                </p>
             )}
-
-            <div className="mx-auto flex w-fit max-sm:mt-16">
-               <Button className="relative text-2xl max-sm:text-xl px-10 py-10 max-sm:py-8 max-sm:px-10 rounded-t-3xl rounded-b-[100px] border border-white text-white bg-blue">
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 text-base max-sm:text-sm gilroy-medium rounded-full bg-green">
-                     стадия
-                  </span>
-                  Сжигание жира
-                  <span className="-translate-x-1 -translate-y-2.5 px-2 text-sm gilroy-bold rounded-full border-2 border-white">
-                     !
-                  </span>
-               </Button>
-            </div>
          </div>
          {isEatingTime && (
-            <p className="text-center">Новый период голодание:</p>
+            <p className="text-center">Новый голодание начнется:</p>
          )}
       </>
    );

@@ -26,6 +26,7 @@ import {
    isFastingAtom,
    isTimerFinishedAtom,
    MOCK_API,
+   userCourseAtom,
 } from "@/lib/state";
 import axios from "axios";
 
@@ -39,8 +40,8 @@ ChartJS.register(
    ChartDataLabels
 );
 const CustomChart = () => {
+   const [userCourse, setUserCourse] = useAtom(userCourseAtom);
    const [fastingHours] = useAtom(fastingHoursAtom);
-
    const [isDate, setIsDate] = useAtom(dateAtom);
    const [start, setStart] = useAtom(fastingStartAtom);
    const [end, setEnd] = useAtom(fastingEndAtom);
@@ -48,10 +49,8 @@ const CustomChart = () => {
    const [points] = useAtom(bonusPointsAtom);
    const chartRef = useRef<any>(null);
    const [customBars, setCustomBars] = useState<any[]>([]);
-
    const [isTimerFinished] = useAtom(isTimerFinishedAtom);
 
-   // const supperEnd = dayjs(fastingHours[0].supperRange[1], "HH:mm");
    const supperEnd = start
       ? dayjs(start).add(fastingHours[0].starvation, "hour").format("HH:mm")
       : null;
@@ -64,12 +63,8 @@ const CustomChart = () => {
 
    const handleStartFasting = async () => {
       try {
-         setIsFasting(true);
-         setStart(dayjs());
-
-         const patchRes = await axios.put(
-            `${MOCK_API}/users/${toDay}`,
-            {
+         await axios
+            .put(`${MOCK_API}/userCourseDaysData/${toDay}`, {
                periods: {
                   fastingPeroids: {
                      previosPeriodEnd: null,
@@ -80,10 +75,13 @@ const CustomChart = () => {
                      wakeUpTime: null,
                   },
                },
-            }
-         );
-
-         console.log("Обновлено:", patchRes.data);
+            })
+            .then((res) => {
+               if (res.status === 200 || res.status === 201) {
+                  setIsFasting(true);
+                  setStart(dayjs());
+               }
+            });
       } catch (error: any) {
          console.error("Ошибка:", error.response?.data || error.message);
       }
@@ -91,12 +89,8 @@ const CustomChart = () => {
 
    const handleEndFasting = async () => {
       try {
-         setIsFasting(false);
-         setEnd(dayjs());
-
-         const patchRes = await axios.put(
-            `${MOCK_API}/users/${toDay}`,
-            {
+         await axios
+            .put(`${MOCK_API}/userCourseDaysData/${toDay}`, {
                periods: {
                   fastingPeroids: {
                      previosPeriodEnd: dayjs().format("YYYY-MM-DDTHH:mm"),
@@ -107,17 +101,24 @@ const CustomChart = () => {
                      wakeUpTime: null,
                   },
                },
-            }
-         );
-
-         console.log("Обновлено:", patchRes.data);
+            })
+            .then((res) => {
+               if (res.status === 200 || res.status === 201) {
+                  setIsFasting(false);
+                  setEnd(dayjs());
+               }
+            });
       } catch (error: any) {
          console.error("Ошибка:", error.response?.data || error.message);
       }
    };
 
    useEffect(() => {
-      setIsFasting(start && end ? false : true);
+      axios.get(`${MOCK_API}/userCourseDaysData`).then((res) => {
+         if (res.status === 200 || res.status === 201) {
+            setUserCourse(res.data);
+         }
+      });
    }, [start, end, isFasting]);
 
    const customTicks = eachMinuteOfInterval(
@@ -147,71 +148,28 @@ const CustomChart = () => {
             chartRef.current.chartInstance.destroy();
          }
 
-         const newCustomBars = [
-            {
-               dateStart: "02.07.2024",
-               dateEnd: "02.08.2025",
-               label: "Пт-Вт",
-               start: "20:22",
-               end: "10:48",
-               progress: 100,
-            },
-            {
-               dateStart: "02.08.2025",
-               dateEnd: "02.09.2025",
-               label: "Вт-Ср",
-               start: "23:00",
-               end: "06:59",
-               progress: 100,
-            },
-            {
-               dateStart: "02.09.2025",
-               dateEnd: "02.10.2025",
-               label: "Ср-Чт",
-               start: "21:00",
-               end: "05:19",
-               progress: 100,
-            },
-            {
-               dateStart: "02.10.2025",
-               dateEnd: "02.11.2025",
-               label: "Чт-Пт",
-               start: "01:11",
-               end: "08:29",
-               progress: 100,
-            },
-            {
-               dateStart: "02.11.2025",
-               dateEnd: "02.12.2025",
-               label: "Пт-Сб",
-               start: "20:00",
-               end: "06:14",
-               progress: 100,
-            },
-            {
-               dateStart: "02.12.2025",
-               dateEnd: "02.13.2025",
-               label: "Сб-Вс",
-               start: "22:00",
-               end: "10:00",
-               progress: 100,
-            },
-            {
-               dateStart: "02.13.2025",
-               dateEnd: "02.14.2025",
-               label: "Вс-Пн",
-               start: start ? dayjs(start).format("HH:mm") : null,
-               end: end ? dayjs(end).format("HH:mm") : supperEnd,
-               progress: end ? 100 : 50,
-            },
-         ].filter((bar) => bar.start !== null || bar.label.includes("-"));
-
          const data = {
-            labels: newCustomBars.map((bar) => bar.label),
+            labels: userCourse.map(
+               (bar: any) => dayjs(bar.id).format("dd")
+               // `${dayjs(bar.periods.fastingPeroids.newPeriodStart).format(
+               //    "dd"
+               // )}-${dayjs(
+               //    bar.periods.fastingPeroids.previosPeriodEnd
+               // ).add(1, "day").format("dd")}`
+            ),
             datasets: [
                {
                   label: "",
-                  data: newCustomBars.map((bar) => [bar.start, bar.end]),
+                  data: userCourse.map((bar: any) => [
+                     [
+                        dayjs(
+                           bar?.periods.fastingPeroids.newPeriodStart
+                        ).format("HH:mm"),
+                        dayjs(
+                           bar?.periods.fastingPeroids.previosPeriodEnd
+                        ).format("HH:mm"),
+                     ],
+                  ]),
                   backgroundColor: "rgba(0,0,0,0)",
                   borderColor: "rgba(0,0,0,0)",
                   borderWidth: 0,
@@ -247,9 +205,9 @@ const CustomChart = () => {
             },
             animation: {
                onComplete: () => {
-                  if (chartRef.current) {
+                  if (chartRef.current && userCourse.length > 0) {
                      const chart = chartRef.current.chartInstance;
-                     updateCustomBars(chart, newCustomBars);
+                     updateCustomBars(chart, userCourse);
                   }
                },
             },
@@ -263,10 +221,10 @@ const CustomChart = () => {
                   callbacks: {
                      label: function (tooltipItem: any) {
                         const { dataIndex } = tooltipItem;
-                        const bar = newCustomBars[dataIndex];
+                        const bar: any = userCourse[dataIndex];
 
                         if (bar) {
-                           return `С ${bar.start} до ${bar.end}`;
+                           return `С ${bar.periods.fastingPeroids.newPeriodStart} до ${bar.p}`;
                         }
                         return "";
                      },
@@ -283,12 +241,16 @@ const CustomChart = () => {
 
          chartRef.current.chartInstance = myChart;
       }
-   }, [start, end, isFasting]);
+   }, [start, end, isFasting, userCourse]);
 
    const updateCustomBars = (chart: any, bars: any[]) => {
       const updatedBars = bars.map((bar) => {
-         let startIdx = parseTime(bar.start);
-         let endIdx = parseTime(bar.end);
+         const start = bar.periods.fastingPeroids.newPeriodStart;
+         const end = bar.periods.fastingPeroids.previosPeriodEnd;
+         let startIdx = parseTime(dayjs(start).format("HH:mm"));
+         let endIdx = parseTime(
+            start && !end ? supperEnd : dayjs(end).format("HH:mm")
+         );
 
          if (endIdx < startIdx) {
             endIdx += 24 * 60;
@@ -296,7 +258,8 @@ const CustomChart = () => {
 
          if (startIdx === -1 || endIdx === -1) return bar;
 
-         const x = chart.scales.x.getPixelForValue(bar.label) - 15;
+         const x =
+            chart.scales.x.getPixelForValue(dayjs(bar.id).format("dd")) - 15;
          const yEnd = chart.scales.y.getPixelForValue(endIdx);
          const yStart = chart.scales.y.getPixelForValue(startIdx);
          const height = yStart - yEnd;
@@ -352,7 +315,7 @@ const CustomChart = () => {
                   className="h-[600px] max-lg:h-[500px] max-md:h-96 max-sm:h-60"
                >
                   <canvas ref={chartRef} />
-                  {customBars.map((bar, index) => (
+                  {customBars.map((bar: any, index) => (
                      <CustomBar
                         key={index}
                         index={index}

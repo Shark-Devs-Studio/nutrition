@@ -6,6 +6,7 @@ import Calendar from "./children/Calendar";
 import { format } from "date-fns";
 import { dateAtom } from "@/lib/state";
 import { useAtom } from "jotai";
+import dayjs from "dayjs";
 
 const Header = () => {
    const [showCalendar, setShowCalendar] = useState(false);
@@ -57,11 +58,11 @@ const Header = () => {
                </p>
                <p className="flex items-center">
                   <span className="text-3xl max-xl:text-2xl gilroy-bold leading-3 mr-1">
-                     {date.date()}
+                     {dayjs(date).format("DD")}
                   </span>
                   |
                   <span className="text-2xl max-xl:text-xl max-md:text-base gilroy-bold ml-1">
-                     {date.month() + 1}
+                     {dayjs(date).format("MM")}
                   </span>
                </p>
             </Button>

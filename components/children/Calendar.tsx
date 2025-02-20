@@ -20,8 +20,8 @@ import {
 import { useAtom } from "jotai";
 import { dateAtom, userCourseAtom } from "@/lib/state";
 import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 
-const courses = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 const trainings = [3, 6, 8, 11, 13];
 const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
@@ -38,23 +38,40 @@ const Calendar = ({
 }: CalendarProps) => {
    const [userCourse] = useAtom(userCourseAtom);
    const [date, setDate] = useAtom(dateAtom);
+   const [courseDays, setCourseDays] = useState<string[]>([]);
+   const [courseTrainings, setCourseTrainings] = useState<any>();
    const start = startOfMonth(selectedDate);
    const end = endOfMonth(selectedDate);
    const days = eachDayOfInterval({ start, end });
    const startDay = getDay(start) === 0 ? 6 : getDay(start) - 1;
 
-   const courseDays = userCourse.map((course: any) =>
-      dayjs(course.id).format("YYYY-MM-DD")
-   );
+   useEffect(() => {
+      if (userCourse && userCourse.length > 0) {
+         const courseDaysArray = userCourse.map((course: any) =>
+            dayjs(course.id).format("YYYY-MM-DD")
+         );
+         setCourseDays(courseDaysArray);
 
-   console.log(userCourse);
+         const trainingDaysObject: Record<string, boolean> = userCourse.reduce(
+            (acc: Record<string, boolean>, course: any) => {
+               acc[dayjs(course.id).format("YYYY-MM-DD")] =
+                  !!course.trainingTests?.isTraining;
+               return acc;
+            },
+            {}
+         );
+
+         setCourseTrainings(trainingDaysObject);
+      }
+   }, [userCourse]);
 
    const calendarDays = days.map((day) => {
       const formattedDay = dayjs(day).format("YYYY-MM-DD");
+      const dayOfMonth = day.getDate();
 
       return {
-         day: day.getDate(),
-         // isTraining: trainings.includes(dayOfMonth),
+         day: dayOfMonth,
+         isTraining: courseTrainings?.[formattedDay] || false,
          isCourse: courseDays.includes(formattedDay),
          isDisabled: !courseDays.includes(formattedDay),
          isToday: formattedDay === dayjs(date).format("YYYY-MM-DD"),
@@ -63,7 +80,7 @@ const Calendar = ({
 
    const handleDayClick = (day: Date) => {
       setSelectedDate(day);
-      setDate(dayjs(day));
+      setDate(dayjs(day).format("YYYY-MM-DD"));
       onClose();
    };
 
@@ -146,12 +163,12 @@ const Calendar = ({
                                  ? "opacity-50 cursor-not-allowed"
                                  : ""
                            }
+                           ${dayObj.isTraining ? "rounded-none" : ""}
                            ${
                               dayObj.isToday
                                  ? "bg-blue/95 text-white border-green border-b-4"
                                  : ""
                            }`}
-                           // ${dayObj.isTraining ? "rounded-none" : ""}
                            onClick={() =>
                               !dayObj.isDisabled &&
                               handleDayClick(
@@ -167,9 +184,9 @@ const Calendar = ({
                               <p className="text-lg font-medium">
                                  {dayObj.day}
                               </p>
-                              {/* {dayObj.isTraining && (
+                              {dayObj.isTraining && (
                                  <FaDumbbell className="absolute bottom-1 right-1 -rotate-45 text-black" />
-                              )} */}
+                              )}
                            </div>
                         </div>
                      </div>

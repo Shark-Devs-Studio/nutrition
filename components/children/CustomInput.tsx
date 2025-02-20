@@ -70,7 +70,8 @@ const CustomInput: React.FC<Props> = ({
       <>
          <div className="w-40 relative">
             <p className="text-xl gilroy-medium">
-               {title} | {time ? dayjs(time).format("DD.MM") : ""}
+               {title} |{" "}
+               {time ? dayjs(time).format("DD.MM") : dayjs().format("DD.MM")}
             </p>
             <div className="relative gilroy-medium">
                <LocalizationProvider dateAdapter={AdapterDayjs}>
